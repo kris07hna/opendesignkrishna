@@ -1,0 +1,119 @@
+name: Open Design GitHub Workflow Automation & Figma Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Target website/app URL to map and transform to Figma (e.g. https://example.com)'
+        required: true
+        default: 'https://stripe.com'
+        type: string
+      goal:
+        description: 'Design mapping goal (e.g. "Map navigation, headers, footers & extract UI design tokens")'
+        required: true
+        default: 'Map full IA and design tokens'
+        type: string
+      viewport:
+        description: 'Viewport configuration'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - 'both'
+          - 'desktop-only'
+          - 'mobile-only'
+      full_page:
+        description: 'Capture full scrolled-page height'
+        required: false
+        default: true
+        type: boolean
+      model:
+        description: 'OpenCode model to use'
+        required: true
+        default: 'opencode/deepseek-v4-flash'
+        type: string
+
+jobs:
+  opendesign_figma_pipeline:
+    name: Open Design Crawl, Tokenize & Figma Artifact Generation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js 20 (for OpenCode CLI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install System Dependencies for Playwright
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgbm-dev
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright nest_asyncio
+
+      - name: Install Playwright Browsers
+        run: |
+          playwright install --with-deps chromium
+
+      - name: Install OpenCode CLI
+        run: |
+          npm install -g opencode-ai
+
+      - name: Run Open Design AI Website & UI Flow Crawler
+        run: |
+          VIEWPORT_FLAG=""
+          if [ "${{ inputs.viewport }}" == "desktop-only" ]; then
+            VIEWPORT_FLAG="--desktop-only"
+          elif [ "${{ inputs.viewport }}" == "mobile-only" ]; then
+            VIEWPORT_FLAG="--mobile-only"
+          fi
+          
+          FULLPAGE_FLAG=""
+          if [ "${{ inputs.full_page }}" == "true" ]; then
+            FULLPAGE_FLAG="--full-page"
+          fi
+          
+          python opendesign-crawler-repo/crawl_map_ai.py \
+            --url "${{ inputs.url }}" \
+            --mode "ux-ia" \
+            --goal "${{ inputs.goal }}" \
+            --model "${{ inputs.model }}" \
+            --output-dir "screenshots_ai_output" \
+            $VIEWPORT_FLAG $FULLPAGE_FLAG
+
+      - name: Export W3C Tokens & Figma Auto-Layout Import Bundle
+        run: |
+          python opendesign-crawler-repo/exporter/figma_exporter.py \
+            --input "screenshots_ai_output/raw_ia_graph.json" \
+            --output-dir "screenshots_ai_output/figma_artifacts"
+
+      - name: Sync Directly to Figma REST API (If Token Configured)
+        env:
+          FIGMA_ACCESS_TOKEN: ${{ secrets.FIGMA_ACCESS_TOKEN }}
+          FIGMA_FILE_KEY: ${{ secrets.FIGMA_FILE_KEY }}
+        run: |
+          python opendesign-crawler-repo/exporter/figma_api_sync.py \
+            --bundle "screenshots_ai_output/figma_artifacts/figma_import_bundle.json" || true
+
+      - name: Package Figma Plugin & Artifact Bundle
+        run: |
+          cp -r opendesign-crawler-repo/figma-plugin screenshots_ai_output/figma_artifacts/
+          echo "Packaging completed."
+
+      - name: Upload Open Design Figma Artifacts to GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: Figma-OpenDesign-Artifacts
+          path: screenshots_ai_output/figma_artifacts/
+          retention-days: 14

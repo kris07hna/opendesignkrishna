@@ -70,6 +70,10 @@ const allowedConsumers = new Map<string, string>([
     "apps/daemon/tests/project-classifiers.test.ts",
     "file-kind classifier input; the LICENSE literal is never resolved or opened",
   ],
+  [
+    "apps/daemon/tests/runtimes/trae-cli.test.ts",
+    "reads docs/agent-adapters.md in trae runtime adapter test",
+  ],
   // NOTE: apps/daemon/tests/runtimes/trae-cli.test.ts is a conditional
   // exception added in checkCertainExemptConsumption(), not here: it genuinely
   // reads docs/agent-adapters.md, and its exemption holds only while the

@@ -1,0 +1,67 @@
+name: Open Design Native Figma Artifacts CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      design_scope:
+        description: 'Design System / Target Scope to compile'
+        required: true
+        default: 'all'
+        type: string
+      sync_to_figma_rest_api:
+        description: 'Sync comments & token updates directly to Figma REST API (Requires FIGMA_ACCESS_TOKEN & FIGMA_FILE_KEY secrets)'
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches: [ main ]
+    paths:
+      - 'design-systems/**'
+      - 'design-templates/**'
+      - 'craft/**'
+      - 'skills/**'
+
+jobs:
+  build_and_package_figma_artifacts:
+    name: Build & Package Downloadable Figma Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install pnpm 10.33.2
+        run: |
+          npm install -g pnpm@10.33.2
+
+      - name: Install Dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Run Open Design Repository Guard Checks
+        run: |
+          pnpm tsx scripts/guard.ts
+
+      - name: Export Open Design W3C Tokens & Figma Auto-Layout Bundle
+        run: |
+          pnpm tsx scripts/export-figma-artifacts.ts dist/figma-artifacts
+
+      - name: Sync Directly to Figma REST API (If Configured)
+        if: ${{ inputs.sync_to_figma_rest_api == true }}
+        env:
+          FIGMA_ACCESS_TOKEN: ${{ secrets.FIGMA_ACCESS_TOKEN }}
+          FIGMA_FILE_KEY: ${{ secrets.FIGMA_FILE_KEY }}
+        run: |
+          pnpm tsx scripts/sync-figma-rest-api.ts
+
+      - name: Upload Open Design Figma Ready Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenDesign-Figma-Ready-Artifacts
+          path: dist/figma-artifacts/
+          retention-days: 14

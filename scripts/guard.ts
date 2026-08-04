@@ -55,6 +55,10 @@ const residualSkippedDirectories = new Set([
   ".od",
   ".od-e2e",
   ".opencode",
+  ".venv",
+  "a11ymcp",
+  "crawl4ai",
+  "FigmaToCode",
   // Local agent deepwork/worktree scratch (git-ignored; not product source).
   ".slim",
   ".task",
@@ -153,6 +157,8 @@ const residualAllowedPathPrefixes = [
   "e2e/ui/test-results/",
   // Vendored upstream HyperFrames helper scripts (design template).
   "design-templates/hyperframes/scripts/",
+  // Open Design crawler repository plugin helper assets.
+  "opendesign-crawler-repo/",
   // Vendored upstream Web Clone skill helper scripts. These are portable
   // Node-run skill utilities executed from user workspaces via explicit script
   // paths, and stay as `.mjs` to preserve the upstream skill packaging.

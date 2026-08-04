@@ -270,3 +270,52 @@ if (needsRebuild) {
     process.exit(rebuild.status ?? 1);
   }
 }
+
+// Ensure Python virtual environment and Playwright dependencies are set up for User Flow Crawler.
+function ensurePythonVenv() {
+  const venvDir = resolve(repoRoot, ".venv");
+  if (existsSync(venvDir)) {
+    process.stdout.write("postinstall: python virtual environment already exists\n");
+    return;
+  }
+
+  process.stdout.write("postinstall: setting up python virtual environment...\n");
+  const pythonCmd = process.platform === "win32" ? "python" : "python3";
+
+  // 1. Create venv
+  const createVenv = spawnSync(pythonCmd, ["-m", "venv", ".venv"], { cwd: repoRoot, stdio: "inherit" });
+  if (createVenv.status !== 0) {
+    process.stdout.write("postinstall: warning: python virtual environment creation failed. Make sure python/python3 is installed.\n");
+    return;
+  }
+
+  // 2. Install requirements
+  const pipPath = process.platform === "win32"
+    ? resolve(venvDir, "Scripts", "pip.exe")
+    : resolve(venvDir, "bin", "pip");
+
+  process.stdout.write("postinstall: installing crawler requirements...\n");
+  const pipInstall = spawnSync(pipPath, ["install", "-r", "requirements.txt"], { cwd: repoRoot, stdio: "inherit" });
+  if (pipInstall.status !== 0) {
+    process.stdout.write("postinstall: warning: python pip requirements installation failed.\n");
+    return;
+  }
+
+  // 3. Install playwright browsers
+  const playwrightPath = process.platform === "win32"
+    ? resolve(venvDir, "Scripts", "playwright.exe")
+    : resolve(venvDir, "bin", "playwright");
+
+  process.stdout.write("postinstall: installing playwright browser dependencies...\n");
+  const playwrightInstall = spawnSync(playwrightPath, ["install", "chromium"], { cwd: repoRoot, stdio: "inherit" });
+  if (playwrightInstall.status !== 0) {
+    process.stdout.write("postinstall: warning: playwright browser installation failed.\n");
+  }
+}
+
+try {
+  ensurePythonVenv();
+} catch (e) {
+  process.stdout.write(`postinstall: warning: python virtual environment setup encountered an error: ${e.message}\n`);
+}
+
