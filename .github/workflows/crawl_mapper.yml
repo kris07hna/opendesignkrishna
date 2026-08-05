@@ -83,7 +83,7 @@ jobs:
         run: |
           echo "Creating dummy project to avoid fresh-database crash..."
           PROJECT_JSON=$(node /app/apps/daemon/dist/cli.js project create --name "CI Runner" --json)
-          PROJECT_ID=$(echo "$PROJECT_JSON" | jq -r '.project.id')
+          PROJECT_ID=$(echo "$PROJECT_JSON" | python3 -c "import sys, json; print(json.load(sys.stdin)['project']['id'])")
           echo "Created project ID: $PROJECT_ID"
           
           echo "Running full OpenDesign advanced CLI extraction..."
