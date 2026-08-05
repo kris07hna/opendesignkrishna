@@ -513,32 +513,44 @@ Synthesize this into a clean, professional UX IA overview in Markdown format:
 
     log(f"UX Overview generated at {md_path}", "INFO")
 
-    # 3. AI-Driven Figma Tree Bundle Synthesis — Uses LLM to organize raw links into clean 3-level tree
-    log(f"Phase 3B: Using AI Strategist to synthesize 3-level navigation_tree for Figma...", "AI")
-    tree_prompt = f"""You are a Senior UX Architect structuring a website's Navigation Information Architecture into a clean 3-level tree JSON format for a Figma Plugin.
+    # 3. AI-Driven Professional Figma Tree Bundle Synthesis
+    log(f"Phase 3B: Using AI Strategist to synthesize professional 3-level navigation_tree & spatial tokens for Figma...", "AI")
+    tree_prompt = f"""You are a Principal Enterprise UX Architect structuring a complex software/website Navigation Architecture into a production-ready Figma JSON bundle.
 
-INPUT DATA:
+INPUT RAW NAVIGATION DATA:
 {json.dumps(summary, indent=2)}
 
-TASK:
-Organize all navigation links into a clean, professional 3-level JSON hierarchy:
-Level 1: Primary Header Dropdowns (e.g. Products, Solutions, Developers, Resources, News, Opinion, Sport, Culture, Lifestyle, Company)
-Level 2: Sub-Category Headings (e.g. Payments, Billing, World News, US Politics, Football, Film, etc.)
-Level 3: Array of clean string item link titles.
+STRICT PROFESSIONAL REQUIREMENTS:
+1. NOISE STRIPPING: Strictly filter out utility & legal clutter (e.g. Privacy Policy, Cookie Settings, Terms of Service, Copyright, Sign In, Sign Up, Language Selectors, Social Icons).
+2. CANONICAL 3-LEVEL HIERARCHY:
+   - Level 1 (Top Header Columns): 3 to 6 primary domain modules (e.g. Relationships, Investment, Accounting, Fund Accounting, Operations, Products, Solutions, Developers, Company).
+   - Level 2 (Sub-Group Cards): Logical functional areas (e.g. Relationship Management, Reports, Transaction Processing, Setup, Daily Performance).
+   - Level 3 (Feature/Page Nodes): Individual clean feature or section link titles.
+3. MODULE HIGHLIGHTS: Identify critical transactional or configuration categories (such as Setup, Reports, Transaction, Management) and mark them as highlights.
+4. FIGMA LAYOUT TOKENS: Provide spatial layout metadata for pixel-perfect rendering.
 
 OUTPUT INSTRUCTION:
-- Return ONLY a valid JSON object wrapped in ```json ``` markdown code block.
-- Schema MUST be:
+- Return ONLY valid JSON wrapped inside a ```json ``` markdown block.
+- Follow this EXACT schema:
 ```json
 {{
   "navigation_tree": {{
-    "Section 1": {{
-      "Category A": ["Link Title 1", "Link Title 2"],
-      "Category B": ["Link Title 3", "Link Title 4"]
+    "Primary Section 1": {{
+      "Subgroup A": ["Feature Node 1", "Feature Node 2"],
+      "Reports": ["Daily Performance Report", "Activity Summary"]
     }},
-    "Section 2": {{
-      "Category C": ["Link Title 5", "Link Title 6"]
+    "Primary Section 2": {{
+      "Setup": ["Configuration", "Preferences"],
+      "Subgroup B": ["Feature Node 3"]
     }}
+  }},
+  "figma_design_tokens": {{
+    "theme": "Enterprise Blue",
+    "primary_header_color": "#2b7fff",
+    "highlight_card_color": "#3b82f6",
+    "standard_card_color": "#d0e1fd",
+    "border_stroke_color": "#90b8f8",
+    "connector_stroke_color": "#2b7fff"
   }}
 }}
 ```
@@ -550,10 +562,10 @@ OUTPUT INSTRUCTION:
             ai_bundle = json.loads(json_match.group(1))
             if "navigation_tree" in ai_bundle and len(ai_bundle["navigation_tree"]) > 0:
                 bundle_path = os.path.join(output_dir, "figma_import_bundle.json")
-                ai_bundle["version"] = "2.0"
-                ai_bundle["generator"] = "OpenDesign AI IA Synthesizer"
+                ai_bundle["version"] = "3.0"
+                ai_bundle["generator"] = "OpenDesign Professional AI Synthesizer"
                 with open(bundle_path, "w", encoding="utf-8") as f:
                     json.dump(ai_bundle, f, indent=2)
-                log(f"AI-Synthesized Figma Import Bundle saved to {bundle_path}", "INFO")
+                log(f"Professional AI Figma Import Bundle saved to {bundle_path}", "INFO")
     except Exception as e:
         log(f"AI Figma bundle synthesis fallback ({e})", "WARN")
