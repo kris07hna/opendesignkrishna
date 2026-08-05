@@ -521,13 +521,13 @@ INPUT RAW NAVIGATION DATA:
 {json.dumps(summary, indent=2)}
 
 STRICT PROFESSIONAL REQUIREMENTS:
-1. NOISE STRIPPING: Strictly filter out utility & legal clutter (e.g. Privacy Policy, Cookie Settings, Terms of Service, Copyright, Sign In, Sign Up, Language Selectors, Social Icons).
+1. NOISE STRIPPING: Strictly filter out utility & legal clutter (such as privacy terms, cookie notices, login/signup links, copyright text, language selectors, or social media handles).
 2. CANONICAL 3-LEVEL HIERARCHY:
-   - Level 1 (Top Header Columns): 3 to 6 primary domain modules (e.g. Relationships, Investment, Accounting, Fund Accounting, Operations, Products, Solutions, Developers, Company).
-   - Level 2 (Sub-Group Cards): Logical functional areas (e.g. Relationship Management, Reports, Transaction Processing, Setup, Daily Performance).
-   - Level 3 (Feature/Page Nodes): Individual clean feature or section link titles.
-3. MODULE HIGHLIGHTS: Identify critical transactional or configuration categories (such as Setup, Reports, Transaction, Management) and mark them as highlights.
-4. FIGMA LAYOUT TOKENS: Provide spatial layout metadata for pixel-perfect rendering.
+   - Level 1 (Top Header Columns): Primary navigation modules extracted from the target website.
+   - Level 2 (Sub-Group Cards): Logical functional sub-categories extracted from the target website.
+   - Level 3 (Feature/Page Nodes): Array of clean feature and section link titles.
+3. DYNAMIC METADATA: Mark key operational or primary sub-modules with "is_highlight": true if applicable.
+4. FIGMA LAYOUT TOKENS: Include spatial color & layout tokens for Figma rendering.
 
 OUTPUT INSTRUCTION:
 - Return ONLY valid JSON wrapped inside a ```json ``` markdown block.

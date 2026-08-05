@@ -174,11 +174,14 @@ function renderColumn(parentFrame, title, colData, startX, startY) {
       const itemCardX = startX + 24;
       drawLConnector(parentFrame, startX + 20, currentY - 12, itemCardX, currentY + itemHeight / 2);
 
-      // Check if group is highlighted section (e.g. Setup, Reports, Transaction)
-      const isHighlight = groupName.toLowerCase().includes("setup") || 
-                          groupName.toLowerCase().includes("report") || 
-                          groupName.toLowerCase().includes("transaction") || 
-                          groupName.toLowerCase().includes("management");
+      // Determine isHighlight dynamically from JSON metadata properties (is_highlight, highlight, or active)
+      let isHighlight = false;
+      if (typeof items === 'object' && items !== null && !Array.isArray(items)) {
+        isHighlight = Boolean(items.is_highlight || items.highlight || items.active);
+      } else if (typeof groupName === 'string') {
+        // Dynamic check: if explicitly marked or specified in design tokens
+        isHighlight = groupName.startsWith("*") || groupName.endsWith("*");
+      }
 
       const groupCard = createCard(groupName, itemCardX, currentY, itemWidth, itemHeight, isHighlight);
       parentFrame.appendChild(groupCard);
