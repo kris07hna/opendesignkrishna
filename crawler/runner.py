@@ -3,7 +3,7 @@ import os
 from datetime import datetime, timezone
 from playwright.async_api import async_playwright
 from crawler.config import log, MAX_STEPS, DEFAULT_MODEL, VERSION
-from crawler.engine import make_context, take_screenshot, settle_page
+from crawler.engine import make_context, take_screenshot, settle_page, resolve_screenshot_path
 from crawler.agent import synthesize_complex_goal
 from crawler.extractor import extract_information_architecture
 import json
@@ -12,14 +12,13 @@ from urllib.parse import urlparse
 
 async def run_crawler(start_url: str, goal: str, output_dir: str, model: str = DEFAULT_MODEL, full_page: bool = True, desktop_only: bool = False, mobile_only: bool = False, no_screenshots: bool = False):
     domain = urlparse(start_url).netloc.replace("www.", "").replace(".", "_") or "site"
-    site_dir = os.path.join(output_dir, domain)
-    os.makedirs(site_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
     log(f"Enterprise Web Flow Mapper v{VERSION}")
     log(f"URL            : {start_url}")
     log(f"Domain Label   : {domain}")
     log(f"Goal           : {goal}")
-    log(f"Output         : {site_dir}/")
+    log(f"Output         : {output_dir}/")
     log(f"No Screenshots : {no_screenshots}")
     
     viewports = []
@@ -45,11 +44,12 @@ async def run_crawler(start_url: str, goal: str, output_dir: str, model: str = D
             
             for step in range(1, MAX_STEPS + 1):
                 log(f"Step {step}/{MAX_STEPS}", "INFO")
+                current_url = page.url
+                page_title = await page.title()
                 
-                # 1. Take Screenshot (if enabled)
-                shot_name = f"{domain}_{vp_name}_step_{step:02d}.png"
-                shot_path = os.path.join(site_dir, shot_name)
+                # 1. Take Screenshot labeled by category & title (if enabled)
                 if not no_screenshots:
+                    shot_path = resolve_screenshot_path(output_dir, current_url, vp_name, step, page_title)
                     await take_screenshot(page, shot_path, full_page)
                 else:
                     shot_path = None

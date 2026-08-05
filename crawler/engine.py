@@ -1,7 +1,40 @@
 import os
+import re
 import asyncio
+from urllib.parse import urlparse
 from playwright.async_api import BrowserContext, Page
 from crawler.config import log
+
+def resolve_screenshot_path(output_dir: str, url: str, viewport: str, step: int = 1, page_name: str = "") -> str:
+    """
+    Constructs a clean domain/category/ folder path labeled by page title/slug.
+    Example: screenshots_ai/stripe_com/products/desktop_01_checkout.png
+    """
+    parsed = urlparse(url)
+    domain = parsed.netloc.replace("www.", "").replace(".", "_") or "site"
+    path_parts = [p for p in parsed.path.strip("/").split("/") if p]
+
+    if len(path_parts) > 1:
+        parent_category = re.sub(r'[^a-zA-Z0-9_\-]', '_', path_parts[0].lower())
+        category_dir = os.path.join(output_dir, domain, parent_category)
+        slug = re.sub(r'[^a-zA-Z0-9_\-]', '_', path_parts[-1].lower())
+    elif len(path_parts) == 1:
+        parent_category = re.sub(r'[^a-zA-Z0-9_\-]', '_', path_parts[0].lower())
+        category_dir = os.path.join(output_dir, domain, parent_category)
+        slug = "overview"
+    else:
+        category_dir = os.path.join(output_dir, domain)
+        slug = "home"
+
+    os.makedirs(category_dir, exist_ok=True)
+
+    if page_name and page_name.strip():
+        clean_title = re.sub(r'[^a-zA-Z0-9_\-]', '_', page_name.lower().strip())[:30]
+        filename = f"{viewport}_{step:02d}_{clean_title}.png"
+    else:
+        filename = f"{viewport}_{step:02d}_{slug}.png"
+
+    return os.path.join(category_dir, filename)
 
 VIEWPORTS = {
     "desktop": {"width": 1440, "height": 900, "is_mobile": False},
