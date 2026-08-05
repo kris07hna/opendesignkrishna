@@ -2063,7 +2063,12 @@ Options:
 
   const url = flags.url;
   const goal = flags.goal;
-  const maxDepth = Number(flags['max-depth'] || 1);
+  const maxSteps = Number(flags['max-steps'] || flags['max-depth'] || 10);
+  const mode = flags.mode;
+  const model = flags.model;
+  const viewport = flags.viewport;
+  const fullPage = flags['full-page'] ?? true;
+  const noAi = flags['no-ai'] ?? false;
   const projectId = flags.project || 'default';
 
   if (!url || !goal) {
@@ -2075,17 +2080,26 @@ Options:
   const endpoint = `${baseUrl}/api/projects/${encodeURIComponent(projectId)}/user-flows/crawl`;
 
   if (flags.json) {
-    console.log(JSON.stringify({ status: 'crawling', url, goal, maxDepth, projectId }));
+    console.log(JSON.stringify({ status: 'crawling', url, goal, mode, maxSteps, projectId }));
   } else {
     console.log(`[UserFlow] Initiating crawl for ${url}`);
-    console.log(`[UserFlow] Goal: ${goal}`);
+    console.log(`[UserFlow] Goal: ${goal} (mode: ${mode || 'flow'})`);
   }
 
   try {
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, goal, maxDepth }),
+      body: JSON.stringify({
+        url,
+        goal,
+        mode,
+        model,
+        viewport,
+        fullPage,
+        maxSteps,
+        noAi,
+      }),
     });
 
     if (!res.ok) {

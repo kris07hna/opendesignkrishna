@@ -92,6 +92,10 @@ jobs:
           node /app/apps/daemon/dist/cli.js user-flow \
             --url "${{ inputs.url }}" \
             --goal "${{ inputs.goal }}" \
+            --mode "${{ inputs.mode }}" \
+            --max-steps "${{ inputs.max_steps }}" \
+            --model "${{ inputs.model }}" \
+            --viewport "${{ inputs.viewport }}" \
             --project "$PROJECT_ID" 2>&1 | tee run.log
 
       - name: Extract Artifacts Path
