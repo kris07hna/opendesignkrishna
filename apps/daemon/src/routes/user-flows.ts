@@ -176,10 +176,11 @@ function handleStreamCrawl(
       sendEvent('error', {
         message: `Crawl failed (${codeDesc})`,
         detail: errSnippet
-          || 'No error output was captured. Check that Playwright browsers are installed:\n  .venv\\Scripts\\python.exe -m playwright install chromium',
+          || 'No error output was captured. Check that Playwright browsers are installed:\n  .venv/bin/python -m playwright install chromium',
       });
       crawlDone = true;
-      res.end();
+      // Small delay so the SSE event flushes to the client before the socket closes.
+      setTimeout(() => res.end(), 200);
       return;
     }
 
@@ -191,10 +192,10 @@ function handleStreamCrawl(
     if (!fs.existsSync(sketchPath)) {
       sendEvent('error', {
         message: 'Crawl completed but whiteboard file was not generated.',
-        detail: 'Run the crawler manually to see the full error:\n  .venv\\Scripts\\python.exe crawl_map_ai.py --url <URL> --goal <GOAL>',
+        detail: 'Run the crawler manually to see the full error:\n  .venv/bin/python crawl_map_ai.py --url <URL> --goal <GOAL>',
       });
       crawlDone = true;
-      res.end();
+      setTimeout(() => res.end(), 200);
       return;
     }
 
@@ -205,7 +206,7 @@ function handleStreamCrawl(
       absoluteSketchPath: sketchPath,
     });
     crawlDone = true;
-    res.end();
+    setTimeout(() => res.end(), 200);
   });
 
   child.on('error', (err) => {
@@ -215,11 +216,11 @@ function handleStreamCrawl(
       message: `Failed to start crawler: ${err.message}`,
       detail:
         'Ensure the Python virtual environment is set up correctly.\n' +
-        'Run: .venv\\Scripts\\python.exe -m pip install playwright && ' +
-        '.venv\\Scripts\\python.exe -m playwright install chromium',
+        'Run: .venv/bin/python -m pip install playwright && ' +
+        '.venv/bin/python -m playwright install chromium',
     });
     crawlDone = true;
-    res.end();
+    setTimeout(() => res.end(), 200);
   });
 
   // Only kill the child if the RESPONSE stream closes (browser tab closed /

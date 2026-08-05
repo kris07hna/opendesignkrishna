@@ -2102,11 +2102,9 @@ Options:
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let crawlFailed = false;
 
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
+    const processSSEBuffer = () => {
       const lines = buffer.split('\n');
       buffer = lines.pop() || '';
       for (const line of lines) {
@@ -2125,16 +2123,15 @@ Options:
               }
             } else if (data.message) {
               if (flags.json) {
-                // Ignore start messages in json mode, but log errors
                 if (data.message.toLowerCase().includes('failed') || data.detail) {
                   console.error(JSON.stringify(data));
-                  process.exitCode = 1;
+                  crawlFailed = true;
                 }
               } else {
                 if (data.message.toLowerCase().includes('failed')) {
                   console.error(`\n[UserFlow] ERROR: ${data.message}`);
                   if (data.detail) console.error(data.detail);
-                  process.exitCode = 1;
+                  crawlFailed = true;
                 } else {
                   console.log(`[UserFlow] ${data.message}`);
                 }
@@ -2143,6 +2140,27 @@ Options:
           } catch {}
         }
       }
+    };
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        processSSEBuffer();
+      }
+    } catch {
+      // Socket closed (daemon ended the SSE stream). Process any remaining data.
+    }
+
+    // Flush any remaining buffered data
+    if (buffer.trim()) {
+      buffer += '\n';
+      processSSEBuffer();
+    }
+
+    if (crawlFailed) {
+      process.exit(1);
     }
   } catch (err) {
     console.error('Failed to communicate with daemon:', err);
