@@ -1,0 +1,222 @@
+{
+  "nav_triggers": [
+    "Sign in",
+    "Developers",
+    "Sign in Sign in",
+    "Products",
+    "Pricing",
+    "Solutions",
+    "Resources",
+    "Contact sales",
+    "Start now",
+    "Back"
+  ],
+  "nav_links_by_nav": {
+    "Nav 1": [
+      {
+        "text": "Products",
+        "href": ""
+      },
+      {
+        "text": "Solutions",
+        "href": ""
+      },
+      {
+        "text": "Developers",
+        "href": ""
+      },
+      {
+        "text": "Resources",
+        "href": ""
+      },
+      {
+        "text": "Pricing",
+        "href": "/in/pricing"
+      },
+      {
+        "text": "Sign in",
+        "href": "https://dashboard.stripe.com/login"
+      },
+      {
+        "text": "Start now",
+        "href": "https://dashboard.stripe.com/register"
+      },
+      {
+        "text": "Contact sales",
+        "href": "/in/contact/sales"
+      },
+      {
+        "text": "Back",
+        "href": ""
+      },
+      {
+        "text": "Sign in Sign in",
+        "href": "https://dashboard.stripe.com/login"
+      },
+      {
+        "text": "Contact sales",
+        "href": "/in/contact/sales"
+      }
+    ]
+  },
+  "mega_panel_headings": [
+    "Accept and optimise payments globally \u2013 online and in person",
+    "Enable any billing model",
+    "Monetise through agentic commerce",
+    "Create a card issuing programme",
+    "Access borderless money movement with stablecoins and crypto",
+    "Embed payments in your platform",
+    "Transform your enterprise with agile financial infrastructure",
+    "Hertz unifies commerce with Stripe.",
+    "URBN consolidates $5 billion in online and in-store revenue onto Stripe.",
+    "Instacart powers online grocery delivery with Stripe.",
+    "Le Monde improves local and international payments with Stripe.",
+    "Build a foundation for your startup that enables faster growth",
+    "Make your SaaS platform a complete financial operating system",
+    "Connect to existing systems.",
+    "Scale with confidence.",
+    "Choose an integration path.",
+    "Businesses on Stripe generated US$1.9tn in 2025.",
+    "Book of the week"
+  ],
+  "footer_headings": [],
+  "heading_tags": [
+    {
+      "level": "h1",
+      "text": "Financial infrastructure to grow your revenue. Accept payments, offer financial services and impleme"
+    },
+    {
+      "level": "h2",
+      "text": "Flexible solutions for every business model."
+    },
+    {
+      "level": "h2",
+      "text": "The backbone of\u00a0global commerce"
+    },
+    {
+      "level": "h2",
+      "text": "Powering businesses of all sizes."
+    },
+    {
+      "level": "h2",
+      "text": "Reliable, extensible infrastructure for every stack."
+    },
+    {
+      "level": "h2",
+      "text": "What's happening"
+    },
+    {
+      "level": "h3",
+      "text": "Accept and optimise payments globally \u2013 online and in person"
+    },
+    {
+      "level": "h3",
+      "text": "Enable any billing model"
+    },
+    {
+      "level": "h3",
+      "text": "Monetise through agentic commerce"
+    },
+    {
+      "level": "h3",
+      "text": "Create a card issuing programme"
+    },
+    {
+      "level": "h3",
+      "text": "Access borderless money movement with stablecoins and crypto"
+    },
+    {
+      "level": "h3",
+      "text": "Embed payments in your platform"
+    },
+    {
+      "level": "h3",
+      "text": "Transform your enterprise with agile financial infrastructure"
+    },
+    {
+      "level": "h3",
+      "text": "Hertz unifies commerce with Stripe."
+    },
+    {
+      "level": "h3",
+      "text": "URBN consolidates $5 billion in online and in-store revenue onto Stripe."
+    },
+    {
+      "level": "h3",
+      "text": "Instacart powers online grocery delivery with Stripe."
+    },
+    {
+      "level": "h3",
+      "text": "Le Monde improves local and international payments with Stripe."
+    },
+    {
+      "level": "h3",
+      "text": "Build a foundation for your startup that enables faster growth"
+    },
+    {
+      "level": "h3",
+      "text": "Make your SaaS platform a complete financial operating system"
+    },
+    {
+      "level": "h3",
+      "text": "Connect to existing systems."
+    },
+    {
+      "level": "h3",
+      "text": "Scale with confidence."
+    },
+    {
+      "level": "h3",
+      "text": "Choose an integration path."
+    },
+    {
+      "level": "h3",
+      "text": "Businesses on Stripe generated US$1.9tn in 2025."
+    },
+    {
+      "level": "h3",
+      "text": "Book of the week"
+    }
+  ],
+  "buttons": [
+    "Products",
+    "Solutions",
+    "Developers",
+    "Resources",
+    "Accept and optimise payments globally \u2013 online and in person",
+    "Enable any billing model\nPro Plan\nBilled monthly\nTokens\n\u20b90.9",
+    "Monetise through agentic commerce",
+    "Create a card issuing programme",
+    "Access borderless money movement with stablecoins and crypto",
+    "Embed payments in your platform"
+  ],
+  "menu_items": [],
+  "navigation_labels": [
+    "Nav 1"
+  ],
+  "a11y_navs": [
+    {
+      "label": ":",
+      "items": [
+        {
+          "text": "Stripe homepage\":",
+          "role": "link"
+        },
+        {
+          "text": "Pricing\":",
+          "role": "link"
+        },
+        {
+          "text": "Sign in\":",
+          "role": "link"
+        },
+        {
+          "text": "Contact sales\":",
+          "role": "link"
+        }
+      ]
+    }
+  ],
+  "a11y_menus": [],
+  "a11y_headings": []
+}

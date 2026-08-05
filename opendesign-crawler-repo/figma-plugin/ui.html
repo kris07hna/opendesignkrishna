@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Open Design Figma Artifact Importer</title>
+    <style>
+      :root {
+        --bg-dark: #0f172a;
+        --surface: #1e293b;
+        --border: #334155;
+        --accent: #6366f1;
+        --accent-hover: #4f46e5;
+        --text-bright: #f8fafc;
+        --text-muted: #94a3b8;
+        --success: #10b981;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg-dark);
+        color: var(--text-bright);
+        margin: 0;
+        padding: 16px;
+        box-sizing: border-box;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .header h2 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, #818cf8, #c084fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .badge {
+        font-size: 10px;
+        background: rgba(99, 102, 241, 0.2);
+        color: #818cf8;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(99, 102, 241, 0.4);
+      }
+      .tab-bar {
+        display: flex;
+        gap: 8px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 14px;
+      }
+      .tab {
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        color: var(--text-muted);
+        border-bottom: 2px solid transparent;
+      }
+      .tab.active {
+        color: var(--text-bright);
+        border-bottom-color: var(--accent);
+        font-weight: 600;
+      }
+      .tab-content { display: none; }
+      .tab-content.active { display: block; }
+      
+      .dropzone {
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        background: var(--surface);
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .dropzone:hover { border-color: var(--accent); }
+      input[type="file"] { display: none; }
+
+      textarea {
+        width: 100%;
+        height: 100px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-bright);
+        padding: 8px;
+        font-family: monospace;
+        font-size: 11px;
+        box-sizing: border-box;
+        resize: none;
+      }
+
+      button {
+        width: 100%;
+        margin-top: 12px;
+        padding: 10px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button:hover { background: var(--accent-hover); }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      
+      .file-info {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--success);
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2>Open Design</h2>
+      <span class="badge">v2.0 GH Action</span>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('upload')">Upload File</div>
+      <div class="tab" onclick="switchTab('paste')">Paste JSON</div>
+    </div>
+
+    <!-- Tab 1: Upload -->
+    <div id="uploadTab" class="tab-content active">
+      <div class="dropzone" onclick="document.getElementById('fileInput').click()">
+        📁 Drop <b>figma_import_bundle.json</b> or <b>raw_ia_graph.json</b> here
+        <input type="file" id="fileInput" accept=".json" />
+      </div>
+      <div id="fileInfo" class="file-info"></div>
+    </div>
+
+    <!-- Tab 2: Paste -->
+    <div id="pasteTab" class="tab-content">
+      <textarea id="jsonPaste" placeholder="Paste figma_import_bundle.json or raw_ia_graph.json here..."></textarea>
+    </div>
+
+    <button id="importBtn" disabled>Import into Figma Canvas</button>
+
+    <script>
+      let activeTab = 'upload';
+      let loadedJsonContent = '';
+
+      function switchTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        if (tab === 'upload') {
+          document.querySelectorAll('.tab')[0].classList.add('active');
+          document.getElementById('uploadTab').classList.add('active');
+        } else {
+          document.querySelectorAll('.tab')[1].classList.add('active');
+          document.getElementById('pasteTab').classList.add('active');
+        }
+        validateState();
+      }
+
+      const fileInput = document.getElementById('fileInput');
+      const fileInfo = document.getElementById('fileInfo');
+      const importBtn = document.getElementById('importBtn');
+      const jsonPaste = document.getElementById('jsonPaste');
+
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          loadedJsonContent = e.target.result;
+          fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+          fileInfo.style.display = 'block';
+          validateState();
+        };
+        reader.readAsText(file);
+      });
+
+      jsonPaste.addEventListener('input', () => { validateState(); });
+
+      function validateState() {
+        if (activeTab === 'upload') {
+          importBtn.disabled = !loadedJsonContent;
+        } else {
+          importBtn.disabled = !jsonPaste.value.trim();
+        }
+      }
+
+      importBtn.addEventListener('click', () => {
+        const payload = activeTab === 'upload' ? loadedJsonContent : jsonPaste.value.trim();
+        parent.postMessage({ pluginMessage: { type: 'import-ia', json: payload } }, '*');
+      });
+    </script>
+  </body>
+</html>

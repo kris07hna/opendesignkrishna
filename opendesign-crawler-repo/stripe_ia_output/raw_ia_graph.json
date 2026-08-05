@@ -1,0 +1,760 @@
+{
+  "https://stripe.com/in": {
+    "title": "Stripe | Financial Infrastructure to Grow Your Revenue",
+    "ia": {
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Financial infrastructure to grow your revenue. Accept payments, offer financial services and impleme"
+        },
+        {
+          "level": "h1",
+          "text": "Financial infrastructure to grow your revenue. Accept payments, offer financial services and impleme"
+        },
+        {
+          "level": "h2",
+          "text": "Flexible solutions for every business model."
+        },
+        {
+          "level": "h3",
+          "text": "Accept and optimise payments globally \u2013 online and in person"
+        },
+        {
+          "level": "h3",
+          "text": "Enable any billing model"
+        },
+        {
+          "level": "h3",
+          "text": "Monetise through agentic commerce"
+        },
+        {
+          "level": "h3",
+          "text": "Create a card issuing programme"
+        },
+        {
+          "level": "h3",
+          "text": "Access borderless money movement with stablecoins and crypto"
+        },
+        {
+          "level": "h3",
+          "text": "Embed payments in your platform"
+        },
+        {
+          "level": "h2",
+          "text": "The backbone of global commerce"
+        },
+        {
+          "level": "h2",
+          "text": "Powering businesses of all sizes."
+        },
+        {
+          "level": "h3",
+          "text": "Transform your enterprise with agile financial infrastructure"
+        },
+        {
+          "level": "h3",
+          "text": "Hertz unifies commerce with Stripe."
+        },
+        {
+          "level": "h3",
+          "text": "URBN consolidates $5 billion in online and in-store revenue onto Stripe."
+        },
+        {
+          "level": "h3",
+          "text": "Instacart powers online grocery delivery with Stripe."
+        },
+        {
+          "level": "h3",
+          "text": "Le Monde improves local and international payments with Stripe."
+        },
+        {
+          "level": "h3",
+          "text": "Build a foundation for your startup that enables faster growth"
+        },
+        {
+          "level": "h3",
+          "text": "Make your SaaS platform a complete financial operating system"
+        },
+        {
+          "level": "h2",
+          "text": "Reliable, extensible infrastructure for every stack."
+        },
+        {
+          "level": "h3",
+          "text": "Connect to existing systems."
+        },
+        {
+          "level": "h3",
+          "text": "Scale with confidence."
+        },
+        {
+          "level": "h3",
+          "text": "Choose an integration path."
+        },
+        {
+          "level": "h2",
+          "text": "What's happening"
+        },
+        {
+          "level": "h3",
+          "text": "Businesses on Stripe generated US$1.9tn in 2025."
+        },
+        {
+          "level": "h3",
+          "text": "150k+ users have their best day ever on Stripe."
+        },
+        {
+          "level": "h3",
+          "text": "Tidemark's vertical and SMB SaaS benchmark report."
+        },
+        {
+          "level": "h3",
+          "text": "Shopify's Tobi L\u00fctke sits down with John Collison."
+        },
+        {
+          "level": "h3",
+          "text": "New tools to process payments outside app stores."
+        },
+        {
+          "level": "h3",
+          "text": "Crypto.com partners with Stripe to enable better crypto payments."
+        },
+        {
+          "level": "h3",
+          "text": "Make your products shoppable through AI platforms."
+        },
+        {
+          "level": "h3",
+          "text": "How leading retailers unify customer experiences and drive growth."
+        },
+        {
+          "level": "h3",
+          "text": "Book of the week"
+        }
+      ],
+      "links": [
+        {
+          "text": "Pricing",
+          "href": "/in/pricing"
+        },
+        {
+          "text": "Sign in",
+          "href": "https://dashboard.stripe.com/login"
+        },
+        {
+          "text": "Start now",
+          "href": "https://dashboard.stripe.com/register"
+        },
+        {
+          "text": "Contact sales",
+          "href": "/in/contact/sales"
+        },
+        {
+          "text": "Sign in Sign in",
+          "href": "https://dashboard.stripe.com/login"
+        },
+        {
+          "text": "Contact sales",
+          "href": "/in/contact/sales"
+        }
+      ],
+      "semantics": {
+        "nav": true,
+        "main": true,
+        "header": true,
+        "footer": true
+      }
+    },
+    "visual_hierarchy": {
+      "Header": {
+        "Buttons": [
+          {
+            "text": "Products",
+            "href": null
+          },
+          {
+            "text": "Solutions",
+            "href": null
+          },
+          {
+            "text": "Developers",
+            "href": null
+          },
+          {
+            "text": "Resources",
+            "href": null
+          },
+          {
+            "text": "Pricing",
+            "href": "/in/pricing"
+          },
+          {
+            "text": "Sign in",
+            "href": "https://dashboard.stripe.com/login"
+          },
+          {
+            "text": "Start now",
+            "href": "https://dashboard.stripe.com/register"
+          },
+          {
+            "text": "Contact sales",
+            "href": "/in/contact/sales"
+          },
+          {
+            "text": "Back",
+            "href": null
+          },
+          {
+            "text": "Sign in Sign in",
+            "href": "https://dashboard.stripe.com/login"
+          }
+        ],
+        "Dropdowns": {
+          "Main Nav": {
+            "Links": [
+              {
+                "text": "Pricing",
+                "href": "/in/pricing"
+              },
+              {
+                "text": "Sign in",
+                "href": "https://dashboard.stripe.com/login"
+              },
+              {
+                "text": "Start now",
+                "href": "https://dashboard.stripe.com/register"
+              },
+              {
+                "text": "Contact sales",
+                "href": "/in/contact/sales"
+              },
+              {
+                "text": "Sign in Sign in",
+                "href": "https://dashboard.stripe.com/login"
+              }
+            ]
+          },
+          "Back": {
+            "Links": [
+              {
+                "text": "Read the story",
+                "href": "/in/customers/hertz"
+              }
+            ]
+          }
+        }
+      },
+      "Body": {
+        "Sections": {
+          "Financial infrastructure to grow your revenue. Accept payments, offer financial ": [
+            {
+              "text": "Request an invite",
+              "href": "/in/contact/sales"
+            }
+          ],
+          "The backbone of global commerce": [
+            {
+              "text": "historical uptime",
+              "href": "https://status.stripe.com"
+            }
+          ],
+          "Powering businesses of all sizes.": [
+            {
+              "text": "Stripe for enterprises",
+              "href": "/in/enterprise"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/hertz"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/hertz"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/urbn"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/urbn"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/instacart"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/instacart"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/le-monde"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/le-monde"
+            },
+            {
+              "text": "View services",
+              "href": "/in/professional-services"
+            },
+            {
+              "text": "View partners",
+              "href": "/in/partners"
+            },
+            {
+              "text": "View plans",
+              "href": "/in/support-plans"
+            },
+            {
+              "text": "Stripe for startups",
+              "href": "/in/startups"
+            },
+            {
+              "text": "Lovable grows into a vibe-coding juggernaut with Stripe. Read Lovable's story",
+              "href": "/in/customers/lovable"
+            },
+            {
+              "text": "Gamma expands to US$100m ARR and 70 million users with Stripe. Read Gamma's stor",
+              "href": "/in/customers/gamma"
+            },
+            {
+              "text": "Runway protects developer time with no-code solutions from Stripe. Read Runway's",
+              "href": "/in/customers/runway"
+            },
+            {
+              "text": "Supabase delivers its backend-as-a-service to 150 countries with Stripe. Read Su",
+              "href": "/in/customers/supabase"
+            },
+            {
+              "text": "Linear partners with Stripe to handle billing and payments. Read Linear's story",
+              "href": "/in/customers/linear"
+            },
+            {
+              "text": "ElevenLabs grows into a US$3bn AI audio leader with Stripe. Watch the video",
+              "href": "/in/customers/elevenlabs"
+            },
+            {
+              "text": "Browserbase offers usage-based billing for an AI agent browser with Stripe. Read",
+              "href": "/in/customers/browserbase"
+            },
+            {
+              "text": "Decagon decreases support costs by 65% with Stripe-integrated agents. Read Decag",
+              "href": "/in/customers/decagon"
+            },
+            {
+              "text": "Stripe Startups programme. Access financial benefits, a focused community, and e",
+              "href": "/in/startups#application"
+            },
+            {
+              "text": "Stripe Atlas. Incorporate and get everything you need to fundraise, bank, and ac",
+              "href": "/in/atlas"
+            },
+            {
+              "text": "Stripe for platforms",
+              "href": "/in/use-cases/platforms"
+            },
+            {
+              "text": "Read the guide",
+              "href": "/in/guides/best-practices-for-launching-and-scaling-platform-payments"
+            },
+            {
+              "text": "Read the guide",
+              "href": "/in/guides/introduction-to-monetizing-payments"
+            },
+            {
+              "text": "Read the guide",
+              "href": "/in/guides/introduction-to-risk-management"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/mindbody"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/jobber"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/substack"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/lightspeed-terminal"
+            }
+          ],
+          "Transform your enterprise with agile financial infrastructure": [
+            {
+              "text": "Stripe for enterprises",
+              "href": "/in/enterprise"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/hertz"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/hertz"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/urbn"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/urbn"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/instacart"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/instacart"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/le-monde"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/le-monde"
+            },
+            {
+              "text": "View services",
+              "href": "/in/professional-services"
+            },
+            {
+              "text": "View partners",
+              "href": "/in/partners"
+            },
+            {
+              "text": "View plans",
+              "href": "/in/support-plans"
+            }
+          ],
+          "Build a foundation for your startup that enables faster growth": [
+            {
+              "text": "Stripe for startups",
+              "href": "/in/startups"
+            },
+            {
+              "text": "Lovable grows into a vibe-coding juggernaut with Stripe. Read Lovable's story",
+              "href": "/in/customers/lovable"
+            },
+            {
+              "text": "Gamma expands to US$100m ARR and 70 million users with Stripe. Read Gamma's stor",
+              "href": "/in/customers/gamma"
+            },
+            {
+              "text": "Runway protects developer time with no-code solutions from Stripe. Read Runway's",
+              "href": "/in/customers/runway"
+            },
+            {
+              "text": "Supabase delivers its backend-as-a-service to 150 countries with Stripe. Read Su",
+              "href": "/in/customers/supabase"
+            },
+            {
+              "text": "Linear partners with Stripe to handle billing and payments. Read Linear's story",
+              "href": "/in/customers/linear"
+            },
+            {
+              "text": "ElevenLabs grows into a US$3bn AI audio leader with Stripe. Watch the video",
+              "href": "/in/customers/elevenlabs"
+            },
+            {
+              "text": "Browserbase offers usage-based billing for an AI agent browser with Stripe. Read",
+              "href": "/in/customers/browserbase"
+            },
+            {
+              "text": "Decagon decreases support costs by 65% with Stripe-integrated agents. Read Decag",
+              "href": "/in/customers/decagon"
+            },
+            {
+              "text": "Stripe Startups programme. Access financial benefits, a focused community, and e",
+              "href": "/in/startups#application"
+            },
+            {
+              "text": "Stripe Atlas. Incorporate and get everything you need to fundraise, bank, and ac",
+              "href": "/in/atlas"
+            }
+          ],
+          "Make your SaaS platform a complete financial operating system": [
+            {
+              "text": "Stripe for platforms",
+              "href": "/in/use-cases/platforms"
+            },
+            {
+              "text": "Read the guide",
+              "href": "/in/guides/best-practices-for-launching-and-scaling-platform-payments"
+            },
+            {
+              "text": "Read the guide",
+              "href": "/in/guides/introduction-to-monetizing-payments"
+            },
+            {
+              "text": "Read the guide",
+              "href": "/in/guides/introduction-to-risk-management"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/mindbody"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/jobber"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/substack"
+            },
+            {
+              "text": "Read the story",
+              "href": "/in/customers/lightspeed-terminal"
+            }
+          ],
+          "Reliable, extensible infrastructure for every stack.": [
+            {
+              "text": "View developer docs",
+              "href": "https://docs.stripe.com/development"
+            },
+            {
+              "text": "View Stripe's GitHub",
+              "href": "https://github.com/stripe"
+            },
+            {
+              "text": "Explore no-code",
+              "href": "https://docs.stripe.com/no-code"
+            },
+            {
+              "text": "See directory",
+              "href": "https://marketplace.stripe.com/"
+            },
+            {
+              "text": "Get started",
+              "href": "https://docs.stripe.com/development"
+            }
+          ],
+          "What's happening": [
+            {
+              "text": "Read the letter",
+              "href": "/in/annual-updates/2025"
+            },
+            {
+              "text": "See the numbers",
+              "href": "/in/newsroom/news/bfcm2025"
+            },
+            {
+              "text": "Get the data",
+              "href": "/in/lp/vertical-saas-benchmark-2025?utm_medium=owned-surfaces&utm_source=33d6&utm_campaign=GLOBAL_4250&utm_content=819a&utm_term=a6a6d7b23e01"
+            },
+            {
+              "text": "Watch video",
+              "href": "https://www.youtube.com/watch?v=eMSqlQMk480"
+            },
+            {
+              "text": "Learn how",
+              "href": "/in/use-cases/in-app-payments"
+            },
+            {
+              "text": "View announcement",
+              "href": "/in/customers/crypto-com-spotlight"
+            },
+            {
+              "text": "Read more",
+              "href": "/in/blog/introducing-our-agentic-commerce-solutions"
+            },
+            {
+              "text": "Get the report",
+              "href": "/in/lp/how-retailers-drive-growth"
+            },
+            {
+              "text": "Read the letter",
+              "href": "/in/annual-updates/2025"
+            },
+            {
+              "text": "See the numbers",
+              "href": "/in/newsroom/news/bfcm2025"
+            },
+            {
+              "text": "Get the data",
+              "href": "/in/lp/vertical-saas-benchmark-2025?utm_medium=owned-surfaces&utm_source=33d6&utm_campaign=GLOBAL_4250&utm_content=819a&utm_term=a6a6d7b23e01"
+            },
+            {
+              "text": "Watch video",
+              "href": "https://www.youtube.com/watch?v=eMSqlQMk480"
+            },
+            {
+              "text": "Learn how",
+              "href": "/in/use-cases/in-app-payments"
+            },
+            {
+              "text": "View announcement",
+              "href": "/in/customers/crypto-com-spotlight"
+            },
+            {
+              "text": "Read more",
+              "href": "/in/blog/introducing-our-agentic-commerce-solutions"
+            },
+            {
+              "text": "Get the report",
+              "href": "/in/lp/how-retailers-drive-growth"
+            }
+          ]
+        }
+      },
+      "Footer": {
+        "Columns": {}
+      },
+      "_meta": {
+        "source": "universal_heuristic",
+        "confirmed_nav": [
+          "Products",
+          "Solutions",
+          "Developers",
+          "Resources",
+          "Pricing",
+          "Sign in",
+          "Start now",
+          "Contact sales",
+          "Back",
+          "Sign in Sign in"
+        ]
+      }
+    }
+  },
+  "https://stripe.com/in/contact/sales": {
+    "title": "Stripe | Contact our Sales Team",
+    "ia": {
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Stripe logo"
+        },
+        {
+          "level": "h1",
+          "text": "Let's get you to the right place"
+        },
+        {
+          "level": "h1",
+          "text": "Let's get you to the right place"
+        },
+        {
+          "level": "h1",
+          "text": "What\u2019s your annual revenue?"
+        },
+        {
+          "level": "h1",
+          "text": "How can we reach you?"
+        },
+        {
+          "level": "h1",
+          "text": "How can we reach you?"
+        },
+        {
+          "level": "h1",
+          "text": "Thanks for your submission"
+        },
+        {
+          "level": "h2",
+          "text": "Chat with Sales"
+        },
+        {
+          "level": "h2",
+          "text": "Schedule a call"
+        },
+        {
+          "level": "h1",
+          "text": "Connecting you to sales"
+        },
+        {
+          "level": "h1",
+          "text": "Thanks for getting in touch"
+        },
+        {
+          "level": "h1",
+          "text": "Thank You!"
+        },
+        {
+          "level": "h1",
+          "text": "Select a date and time"
+        },
+        {
+          "level": "h1",
+          "text": "Your meeting is scheduled"
+        },
+        {
+          "level": "h1",
+          "text": "Thanks for reaching out"
+        },
+        {
+          "level": "h1",
+          "text": "The fastest way to get started"
+        },
+        {
+          "level": "h2",
+          "text": "Sign up for Stripe"
+        },
+        {
+          "level": "h2",
+          "text": "Chat with AI"
+        },
+        {
+          "level": "h1",
+          "text": "Start using Stripe today"
+        }
+      ],
+      "links": [
+        {
+          "text": "Sign up",
+          "href": "https://dashboard.stripe.com/register"
+        },
+        {
+          "text": "Stripe logo",
+          "href": "/"
+        },
+        {
+          "text": "Visit our full website",
+          "href": "/in"
+        },
+        {
+          "text": "Privacy & terms",
+          "href": "https://stripe.com/in/privacy"
+        },
+        {
+          "text": "Visit our full website",
+          "href": "/in"
+        }
+      ],
+      "semantics": {
+        "nav": true,
+        "header": true,
+        "footer": true
+      }
+    },
+    "visual_hierarchy": {
+      "Header": {
+        "Dropdowns": {}
+      },
+      "Footer": {
+        "Columns": {}
+      },
+      "_meta": {
+        "source": "universal_heuristic",
+        "confirmed_nav": [
+          "Products",
+          "Solutions",
+          "Developers",
+          "Resources",
+          "Pricing",
+          "Sign in",
+          "Start now",
+          "Contact sales",
+          "Back",
+          "Sign in Sign in"
+        ]
+      }
+    }
+  }
+}

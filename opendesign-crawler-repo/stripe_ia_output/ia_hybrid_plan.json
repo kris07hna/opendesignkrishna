@@ -1,0 +1,39 @@
+{
+  "source": "universal_heuristic",
+  "nav_items": [
+    "Products",
+    "Solutions",
+    "Developers",
+    "Resources",
+    "Pricing",
+    "Sign in",
+    "Start now",
+    "Contact sales",
+    "Back",
+    "Sign in Sign in"
+  ],
+  "has_mega_menu": true,
+  "footer_columns": [],
+  "selectors": {
+    "dropdown_panel_selector": "[role='menu'], [role='menubar'], header ul ul, nav ul ul, [class*='dropdown'], [class*='mega'], [class*='panel'], [class*='flyout'], [data-dropdown], [aria-expanded='true'] ~ *, [id^=':r'], [class*='popup'], [class*='positioner']",
+    "column_heading_selector": "h2, h3, h4, strong, [role='heading'], [class*='heading'], [class*='title'], [class*='category'], [class*='label']",
+    "column_item_selector": "a",
+    "footer_heading_selector": "h2, h3, h4, h5, strong",
+    "trigger_to_panel_map": {
+      "Products": "[role='menu'], [role='menubar'], header ul ul, nav ul ul, [class*='dropdown'], [class*='mega'], [class*='panel'], [class*='flyout'], [data-dropdown], [aria-expanded='true'] ~ *, [id^=':r'], [class*='popup'], [class*='positioner']",
+      "Solutions": "[role='menu'], [role='menubar'], header ul ul, nav ul ul, [class*='dropdown'], [class*='mega'], [class*='panel'], [class*='flyout'], [data-dropdown], [aria-expanded='true'] ~ *, [id^=':r'], [class*='popup'], [class*='positioner']",
+      "Developers": "[role='menu'], [role='menubar'], header ul ul, nav ul ul, [class*='dropdown'], [class*='mega'], [class*='panel'], [class*='flyout'], [data-dropdown], [aria-expanded='true'] ~ *, [id^=':r'], [class*='popup'], [class*='positioner']",
+      "Resources": "[role='menu'], [role='menubar'], header ul ul, nav ul ul, [class*='dropdown'], [class*='mega'], [class*='panel'], [class*='flyout'], [data-dropdown], [aria-expanded='true'] ~ *, [id^=':r'], [class*='popup'], [class*='positioner']",
+      "Pricing": null,
+      "Sign in": null,
+      "Start now": null,
+      "Contact sales": "[role='menu'], [role='menubar'], header ul ul, nav ul ul, [class*='dropdown'], [class*='mega'], [class*='panel'], [class*='flyout'], [data-dropdown], [aria-expanded='true'] ~ *, [id^=':r'], [class*='popup'], [class*='positioner']",
+      "Back": "[role='menu'], [role='menubar'], header ul ul, nav ul ul, [class*='dropdown'], [class*='mega'], [class*='panel'], [class*='flyout'], [data-dropdown], [aria-expanded='true'] ~ *, [id^=':r'], [class*='popup'], [class*='positioner']",
+      "Sign in Sign in": "[role='menu'], [role='menubar'], header ul ul, nav ul ul, [class*='dropdown'], [class*='mega'], [class*='panel'], [class*='flyout'], [data-dropdown], [aria-expanded='true'] ~ *, [id^=':r'], [class*='popup'], [class*='positioner']"
+    },
+    "notes": "Universal selectors (no LLM)",
+    "_source": "universal_heuristic"
+  },
+  "confirmed_nav_count": 10,
+  "confirmed_footer_count": 0
+}

@@ -1,0 +1,9 @@
+{
+  "name": "Open Design IA Figma Plugin",
+  "id": "com.opendesign.ia-plugin",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "menu": [{"name": "Import IA JSON", "command": "import-ia"}]
+}
