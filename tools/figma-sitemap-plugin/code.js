@@ -75,6 +75,20 @@ function extractHierarchy(data) {
       result["Sitemap"][title] = children;
     }
   }
+  // Case C: userflow.sketch.json (Excalidraw elements format)
+  else if (data.elements && Array.isArray(data.elements)) {
+    const extractedTexts = [];
+    for (const el of data.elements) {
+      if (el.text && typeof el.text === 'string' && el.text.trim().length > 0 && el.text.trim().length < 40) {
+        extractedTexts.push(el.text.trim());
+      }
+    }
+    if (extractedTexts.length > 0) {
+      result["Extracted User Flow"] = {
+        "Navigation Links": extractedTexts.slice(0, 15)
+      };
+    }
+  }
 
   if (Object.keys(result).length === 0) {
     result["Sample Section"] = {
