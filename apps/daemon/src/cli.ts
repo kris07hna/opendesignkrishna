@@ -2123,6 +2123,22 @@ Options:
               } else {
                 console.log(`\n[UserFlow] Whiteboard created: ${data.sketchPath}`);
               }
+            } else if (data.message) {
+              if (flags.json) {
+                // Ignore start messages in json mode, but log errors
+                if (data.message.toLowerCase().includes('failed') || data.detail) {
+                  console.error(JSON.stringify(data));
+                  process.exitCode = 1;
+                }
+              } else {
+                if (data.message.toLowerCase().includes('failed')) {
+                  console.error(`\n[UserFlow] ERROR: ${data.message}`);
+                  if (data.detail) console.error(data.detail);
+                  process.exitCode = 1;
+                } else {
+                  console.log(`[UserFlow] ${data.message}`);
+                }
+              }
             }
           } catch {}
         }

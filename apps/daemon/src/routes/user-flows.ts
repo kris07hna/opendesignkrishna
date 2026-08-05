@@ -81,7 +81,7 @@ function handleStreamCrawl(
     crawlerScript,
     '--url', url.trim(),
     '--goal', goal.trim(),
-    '--max-depth', String(maxDepth),
+    '--max-steps', String(maxDepth),
     '--output-dir', outputDir,
   ];
 
