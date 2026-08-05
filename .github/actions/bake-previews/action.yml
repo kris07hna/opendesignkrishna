@@ -90,32 +90,15 @@ runs:
         cp data/plugin-previews/manifest.json .tmp/plugin-previews/manifest.json
         node scripts/bake-plugin-previews.mjs --out .tmp/plugin-previews
 
-    - name: Upload clips to R2
+    - name: Upload clips to GitHub Artifacts
       if: ${{ inputs.upload == 'true' }}
-      shell: bash
-      # Publishes to the repository-assets R2 bucket; the deployed daemon must
-      # set OD_PLUGIN_PREVIEWS_BASE_URL to
-      # https://repo-assets.open-design.ai/plugin-previews so its bakedPreview
-      # URLs point here (CLOUDFLARE_R2_REPOSITORY_ASSETS_PUBLIC_ORIGIN).
-      env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.r2-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.r2-secret-access-key }}
-        AWS_DEFAULT_REGION: auto
-        AWS_EC2_METADATA_DISABLED: 'true'
-        R2_BUCKET: ${{ inputs.r2-bucket }}
-        R2_ENDPOINT: ${{ inputs.r2-endpoint }}
-      run: |
-        endpoint="${R2_ENDPOINT%/}"
-        # cp (not sync --delete) so untouched clips already on R2 stay put.
-        # Keys are content-addressed (<id>/<fingerprint>/preview.mp4), so the
-        # clips are immutable — let the CDN cache them forever (a content change
-        # ships a new directory). Garbage collection is a separate scheduled job.
-        aws s3 cp .tmp/plugin-previews "s3://$R2_BUCKET/plugin-previews/" \
-          --recursive --no-progress \
-          --endpoint-url "$endpoint" \
-          --cache-control "public, max-age=31536000, immutable" \
-          --exclude manifest.json \
-          --exclude bake-report.json
+      uses: actions/upload-artifact@v4
+      with:
+        name: plugin-previews
+        path: |
+          .tmp/plugin-previews/**
+          !.tmp/plugin-previews/manifest.json
+          !.tmp/plugin-previews/bake-report.json
 
     - name: Stop daemon
       if: always()
