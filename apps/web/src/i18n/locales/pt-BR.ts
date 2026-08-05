@@ -4286,4 +4286,6 @@ export const ptBR: Dict = {
   'questions.uploadNeedsProject': 'O envio de arquivos precisa de um projeto ativo.',
   'questions.uploadPartialFailed': '{uploaded} arquivo(s) enviado(s), mas {failed} falharam.',
   'questions.uploadFailed': 'Falha no envio de {failed} arquivo(s).',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

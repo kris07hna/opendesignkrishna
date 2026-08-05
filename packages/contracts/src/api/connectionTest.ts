@@ -236,7 +236,10 @@ export type ConnectionTestProtocol =
   | 'ollama'
   | 'senseaudio'
   | 'aihubmix'
-  | 'bedrock';
+  | 'bedrock'
+  | 'openrouter'
+  | 'cloudflare';
+
 
 export interface ProviderTestRequest extends ReasoningExecutionRequestFields {
   protocol: ConnectionTestProtocol;

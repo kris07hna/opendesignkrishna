@@ -34,6 +34,7 @@ import type { IconName } from '../Icon';
 export type ChipScenarioPluginId =
   | DefaultScenarioPluginId
   | 'example-hyperframes'
+  | 'example-user-flow'
   // Powered-preview scenarios: real-time GPU / off-main-thread artifacts that
   // render in the cross-origin-isolated "powered preview" iframe. They ship
   // their own bundled example plugins under plugins/_official/examples/, so —
@@ -60,7 +61,8 @@ export type ChipAction =
   | { kind: 'open-template-picker' }
   // Routes the user into the Brand Kit tab and opens its New Brand Kit modal,
   // reusing the same extraction flow as the tab's own "New Brand Kit" button.
-  | { kind: 'create-brand-kit' };
+  | { kind: 'create-brand-kit' }
+  | { kind: 'create-user-flow' };
 
 // Two intent groups: "create" = produce a design artifact, "migrate" =
 // lower-row starter shortcuts such as plugin authoring, imports, and
@@ -142,6 +144,23 @@ export const HOME_HERO_CHIPS: ReadonlyArray<HomeHeroChip> = [
       projectMetadata: {
         kind: 'prototype',
         intent: 'web-clone',
+      },
+    },
+  },
+  {
+    id: 'user-flow',
+    label: 'User Flow',
+    icon: 'globe',
+    group: 'create',
+    description: 'Visual user flow maps',
+    hint: 'Map any website user flows and generate an interactive sitemap whiteboard.',
+    action: {
+      kind: 'apply-scenario',
+      pluginId: 'example-user-flow',
+      projectKind: 'prototype',
+      projectMetadata: {
+        kind: 'prototype',
+        intent: 'user-flow' as any,
       },
     },
   },

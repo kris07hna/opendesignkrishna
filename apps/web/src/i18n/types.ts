@@ -1182,6 +1182,8 @@ export interface Dict {
   'homeHero.chip.videoNext': string;
   'homeHero.chip.audioNext': string;
   'homeHero.chip.webClonePromptSeed': string;
+  'homeHero.chip.userFlowPromptSeed': string;
+  'homeHero.chip.userFlowNext': string;
   'homeWorkingDir.trigger': string;
   'homeWorkingDir.pick': string;
   'homeWorkingDir.replace': string;

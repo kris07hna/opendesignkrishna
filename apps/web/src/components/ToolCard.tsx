@@ -14,6 +14,7 @@ import { isTodoWriteToolName, parseTodoWriteInput } from '../runtime/todos';
 import { getToolRenderer, toRenderProps } from '../runtime/tool-renderers';
 import type { AgentEvent } from '../types';
 import { Icon, type IconName } from './Icon';
+import { UserFlowCard } from './UserFlowCard';
 
 interface Props {
   use: Extract<AgentEvent, { kind: 'tool_use' }>;
@@ -110,6 +111,19 @@ export function ToolCard({
     return <FileEditCard input={use.input} result={result} runStreaming={isStreaming} runSucceeded={isSucceeded} ctx={ctx} />;
   if (category === 'read')
     return <FileReadCard input={use.input} result={result} runStreaming={isStreaming} runSucceeded={isSucceeded} ctx={ctx} />;
+  if (name === 'user_flow' || name === 'crawl_user_flow' || name === 'user-flow' || (name === 'run_command' && String((use.input as any)?.command || '').includes('crawl_map_ai'))) {
+    const inputObj = (use.input ?? {}) as any;
+    return (
+      <UserFlowCard
+        url={inputObj.url || inputObj.targetUrl}
+        goal={inputObj.goal || inputObj.userGoal}
+        status={result ? (result.isError ? 'error' : 'complete') : 'crawling'}
+        sketchPath="screenshots_ai/sitemap_flow.sketch.json"
+        runStreaming={isStreaming}
+        onRequestOpenFile={onRequestOpenFile}
+      />
+    );
+  }
   if (category === 'run') return <BashCard input={use.input} result={result} runStreaming={isStreaming} runSucceeded={isSucceeded} />;
   if (category === 'search') return <SearchCard toolName={name} input={use.input} result={result} runStreaming={isStreaming} runSucceeded={isSucceeded} />;
   if (category === 'fetch') return <WebFetchCard input={use.input} result={result} runStreaming={isStreaming} runSucceeded={isSucceeded} />;

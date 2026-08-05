@@ -4286,4 +4286,6 @@ export const ko: Dict = {
   'questions.uploadNeedsProject': '파일 업로드에는 활성 프로젝트가 필요합니다.',
   'questions.uploadPartialFailed': '{uploaded}개 파일을 업로드했지만 {failed}개가 실패했습니다.',
   'questions.uploadFailed': '{failed}개 파일 업로드에 실패했습니다.',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

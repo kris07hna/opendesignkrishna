@@ -784,6 +784,14 @@ const API_KEY_CONSOLE_LINKS: Record<ApiProtocol, { host: string; url: string }> 
     host: 'aws.amazon.com',
     url: 'https://aws.amazon.com/bedrock/',
   },
+  openrouter: {
+    host: 'openrouter.ai',
+    url: 'https://openrouter.ai/keys',
+  },
+  cloudflare: {
+    host: 'dash.cloudflare.com',
+    url: 'https://dash.cloudflare.com/',
+  },
 };
 
 const AGENT_SHORT_DESCRIPTIONS: Record<string, string> = {

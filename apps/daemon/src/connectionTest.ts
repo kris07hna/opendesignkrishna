@@ -801,7 +801,14 @@ function inspectProviderCompletion(
   const obj = data && typeof data === 'object' ? data as Record<string, unknown> : null;
   if (!obj) return { valid: false };
 
-  if (protocol === 'openai' || protocol === 'azure' || protocol === 'senseaudio' || protocol === 'aihubmix') {
+  if (
+    protocol === 'openai' ||
+    protocol === 'azure' ||
+    protocol === 'senseaudio' ||
+    protocol === 'aihubmix' ||
+    protocol === 'openrouter' ||
+    protocol === 'cloudflare'
+  ) {
     const responseModel = typeof obj.model === 'string' ? obj.model : '';
     if (
       // AIHubMix is omitted from the strict response-model check (like Azure):
@@ -1287,7 +1294,9 @@ function buildProviderCall(input: ProviderTestRequest): ProviderCallShape {
       };
     case 'openai':
     case 'senseaudio':
-      // SenseAudio is wire-compatible with OpenAI (POST /v1/chat/completions,
+    case 'openrouter':
+    case 'cloudflare':
+      // SenseAudio, OpenRouter, and Cloudflare are wire-compatible with OpenAI (POST /v1/chat/completions,
       // Bearer auth, identical body + response shape), so the connection
       // smoke test reuses the same call shape. We default the base URL
       // upstream-side in chat-routes; this layer assumes the caller passed

@@ -1666,7 +1666,7 @@ export function HomeView({
   // Pure UI-state mapping — the heavy lifting is delegated back to
   // existing handlers. Migration chips that don't have a bound plugin
   // (`open-template-picker`) forward to callbacks threaded in from EntryShell.
-  function pickChip(chip: HomeHeroChip) {
+  async function pickChip(chip: HomeHeroChip) {
     setError(null);
     // P0 ui_click area=chat_composer element=plugin_chip|action_chip. The
     // chip's `action.kind` discriminates: plugin-bound chips
@@ -1749,6 +1749,8 @@ export function HomeView({
         const promptSeed =
           chip.id === 'web-clone' && prompt.trim().length === 0
             ? t('homeHero.chip.webClonePromptSeed')
+            : chip.id === 'user-flow' && prompt.trim().length === 0
+            ? t('homeHero.chip.userFlowPromptSeed')
             : null;
         if (chip.group === 'create') {
           void usePlugin(record, promptSeed ?? undefined, {
@@ -2672,18 +2674,36 @@ function extractPluginInputsFromPrompt(
     keys.push(key);
     lastIndex = match.index + placeholder.length;
   }
-  if (keys.length === 0) return null;
-  pattern += escapeRegExp(template.slice(lastIndex));
-  const renderedMatch = new RegExp(pattern + '$').exec(prompt);
-  if (!renderedMatch) return null;
-  const next: Record<string, unknown> = {};
-  keys.forEach((key, index) => {
-    const field = fieldByName.get(key);
-    if (!field) return;
-    const raw = renderedMatch[index + 1] ?? '';
-    next[key] = coercePromptInputValue(raw, field);
-  });
-  return next;
+  if (keys.length > 0) {
+    pattern += escapeRegExp(template.slice(lastIndex));
+    const renderedMatch = new RegExp(pattern + '$').exec(prompt);
+    if (renderedMatch) {
+      const next: Record<string, unknown> = {};
+      keys.forEach((key, index) => {
+        const field = fieldByName.get(key);
+        if (!field) return;
+        const raw = renderedMatch[index + 1] ?? '';
+        next[key] = coercePromptInputValue(raw, field);
+      });
+      return next;
+    }
+  }
+
+  // Fallback heuristic extraction for freeform user prompts
+  const fallbackNext: Record<string, unknown> = {};
+  let foundAny = false;
+  if (fieldByName.has('targetUrl')) {
+    const urlMatch = /https?:\/\/[^\s>)]+/i.exec(prompt);
+    if (urlMatch) {
+      fallbackNext.targetUrl = urlMatch[0];
+      foundAny = true;
+    }
+  }
+  if (fieldByName.has('userGoal') && prompt.trim()) {
+    fallbackNext.userGoal = prompt.trim();
+    foundAny = true;
+  }
+  return foundAny ? fallbackNext : null;
 }
 
 function coercePromptInputValue(raw: string, field: InputFieldSpec): unknown {

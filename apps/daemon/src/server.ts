@@ -35,6 +35,7 @@ import {
 } from './prompts/stable-sections.js';
 import { emittedRenderableQuestionForm } from './question-form-detect.js';
 import { resolveProjectRoot } from './project-root.js';
+import { a11yRouter } from './a11y-routes.js';
 import {
   resolveDaemonCliPath,
   resolveDaemonPluginPreviewsDir,
@@ -624,10 +625,12 @@ import { registerHandoffRoutes } from './routes/handoff.js';
 import { EmptyTranscriptError, synthesizeHandoffPrompt } from './design/index.js';
 import { TranscriptExportLockedError } from './transcript-export.js';
 import { registerChatRoutes } from './routes/chat.js';
+import { registerFigmaRoutes } from './routes/figma.js';
 import { registerRunRoutes } from './routes/runs.js';
 import { registerTerminalRoutes } from './routes/terminal.js';
 import { createTerminalService } from './terminals.js';
 import { registerSocialShareRoutes } from './routes/social-share.js';
+import { registerUserFlowRoutes } from './routes/user-flows.js';
 import { registerOpenDesignPublicMetadataRoutes } from './routes/open-design-public-metadata.js';
 import { registerWhatsNewRoutes } from './routes/whats-new.js';
 import { registerMemoryRoutes } from './routes/memory.js';
@@ -2217,6 +2220,16 @@ export async function startServer({
   // Health/version remain open for monitoring probes.
   // Non-browser clients (no Origin header) are always allowed.
   app.use('/api', (req, res, next) => {
+    if (req.path.startsWith('/figma')) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+      }
+      return next();
+    }
+
     // Live artifact previews have stricter local-daemon validation and
     // loopback CORS handling on the route itself. Let that middleware produce
     // the structured error shape and preflight headers for preview embeds.
@@ -2268,12 +2281,12 @@ export async function startServer({
     // Non-browser client → allow.
     if (origin == null || origin === '') return next();
 
-    // Origin: null (sandboxed iframes).  Only allowed for safe, read-only
-    // routes that set their own CORS headers for canvas drawing.
-    if (origin === 'null') {
+    // Origin: null (sandboxed iframes / Figma desktop plugin).
+    if (origin === 'null' || /^https:\/\/(.*\.)?figma\.com$/i.test(String(origin))) {
+      const isSafeFigmaRoute = req.path.startsWith('/figma') || req.path === '/daemon/status' || req.path === '/health' || req.path.startsWith('/library');
       const isSafeReadOnly =
         req.method === 'GET' && _NULL_ORIGIN_SAFE_GET_RE.test(req.path);
-      if (!isSafeReadOnly) {
+      if (!isSafeReadOnly && !isSafeFigmaRoute) {
         return res.status(403).json({ error: 'Origin: null not allowed for this route' });
       }
       return next();
@@ -2523,6 +2536,8 @@ export async function startServer({
   registerAutomationRoutes(app, {
     paths: { RUNTIME_DATA_DIR },
   });
+
+  app.use('/api/a11y', a11yRouter);
 
   // Reconcile follow-up — the inline POST /api/projects body that lived
   // on garnet (with baseDir privilege check, linkedDirs validation,
@@ -3037,6 +3052,7 @@ export async function startServer({
     });
   });
   registerSocialShareRoutes(app, { http: httpDeps });
+  registerUserFlowRoutes(app, { db, http: httpDeps, paths: pathDeps });
   registerProjectRoutes(app, {
     db,
     design,
@@ -8921,6 +8937,10 @@ export async function startServer({
     telemetry: { reportFinalizedMessage, reportFeedback },
   });
 
+  registerFigmaRoutes(app, {
+    http: httpDeps,
+  });
+
   registerStaticSpaFallback(app, STATIC_DIR);
 
   // Wait for `listen` to bind so callers always see the resolved URL —
@@ -8947,7 +8967,9 @@ export async function startServer({
     };
     let server;
     try {
-      server = app.listen(port, host);
+      server = (host === '0.0.0.0' || host === '::' || host === '127.0.0.1')
+        ? app.listen({ port, host: '::', ipv6Only: false })
+        : app.listen(port, host);
       server.once('listening', () => {
         // Widen the between-request idle window so kept-alive sockets
         // belonging to chat/SSE clients survive the gaps between bursts.

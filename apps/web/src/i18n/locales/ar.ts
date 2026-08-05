@@ -4286,4 +4286,6 @@ export const ar: Dict = {
   'questions.uploadNeedsProject': 'يتطلب رفع الملفات مشروعًا نشطًا.',
   'questions.uploadPartialFailed': 'تم رفع {uploaded} ملف(ات)، لكن فشل {failed}.',
   'questions.uploadFailed': 'فشل رفع {failed} ملف(ات).',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

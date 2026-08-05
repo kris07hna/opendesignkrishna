@@ -41,6 +41,8 @@ export interface LauncherContext {
    * round-trip — so it returns void and creates/focuses the tab itself.
    */
   createBrowser?: () => void;
+  /** Create a new user flow whiteboard via Playwright crawler. */
+  createFlow?: () => void;
   /** Create a new sketch in the current Design Files directory. */
   createSketch?: () => void;
   /** Create a new Markdown document in the current Design Files directory. */
@@ -54,10 +56,10 @@ export interface LauncherAction {
   id: string;
   /** Icon shown to the left of the label; any name from the shared icon set. */
   iconName: IconName;
-  /** i18n key for the action label (e.g. workspace.newTerminal). */
-  labelKey: keyof Dict;
-  /** Optional i18n key for a secondary description line. */
-  descriptionKey?: keyof Dict;
+  /** i18n key for the action label (e.g. workspace.newTerminal) or a raw label string. */
+  labelKey: keyof Dict | string;
+  /** Optional i18n key or raw description string for a secondary description line. */
+  descriptionKey?: keyof Dict | string;
   /** Invoked when the user picks the action; the menu closes afterwards. */
   run: (ctx: LauncherContext) => void;
 }
@@ -97,6 +99,17 @@ export function buildLauncherActions(ctx: LauncherContext): LauncherAction[] {
       // id to thread through openTab here.
       run: (runCtx) => {
         runCtx.createBrowser?.();
+      },
+    });
+  }
+  if (ctx.createFlow) {
+    actions.push({
+      id: 'new-user-flow',
+      iconName: 'globe',
+      labelKey: 'Create User Flow',
+      descriptionKey: 'Map any website and generate a visual user flow sitemap whiteboard',
+      run: (runCtx) => {
+        runCtx.createFlow?.();
       },
     });
   }

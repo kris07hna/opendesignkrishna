@@ -36,7 +36,7 @@ export function normalizeLocalAuthority(value: unknown): LocalAuthority | null {
 export function isLoopbackHostname(hostname: unknown): boolean {
   const normalized = String(hostname || '').toLowerCase().replace(/^\[|\]$/g, '').replace(/\.$/, '');
   if (normalized === 'localhost') return true;
-  if (normalized === '::1' || normalized === '0:0:0:0:0:0:0:1') return true;
+  if (normalized === '::' || normalized === '0.0.0.0' || normalized === '::1' || normalized === '0:0:0:0:0:0:0:1') return true;
   if (net.isIP(normalized) === 4) return normalized === '127.0.0.1' || normalized.startsWith('127.');
   return false;
 }
@@ -54,7 +54,10 @@ export function isLoopbackPeerAddress(address: unknown): boolean {
 export function localOriginFromHeader(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
-  if (!trimmed || trimmed === 'null' || trimmed.includes(',')) return null;
+  if (!trimmed || trimmed.includes(',')) return null;
+  if (trimmed === 'null' || /^https:\/\/(.*\.)?figma\.com$/i.test(trimmed) || /^vscode-webview:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
 
   try {
     const parsed = new URL(trimmed);
@@ -105,10 +108,13 @@ export function requireLocalDaemonRequest(req: Request, res: Response, next: Nex
 
   res.setHeader('Vary', 'Origin');
   if (validation.origin) {
-    res.setHeader('Access-Control-Allow-Origin', validation.origin);
+    res.setHeader('Access-Control-Allow-Origin', validation.origin === 'null' ? '*' : validation.origin);
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.setHeader('Access-Control-Max-Age', '600');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
   next();
 }

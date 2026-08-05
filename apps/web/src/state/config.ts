@@ -176,6 +176,36 @@ export const KNOWN_PROVIDERS: KnownProvider[] = [
     preferredModels: ['gpt-4o', 'gpt-4o-mini', 'o3', 'o4-mini'],
   },
   {
+    label: 'OpenRouter',
+    protocol: 'openrouter',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    preferredModels: [
+      'anthropic/claude-3.7-sonnet',
+      'anthropic/claude-3.5-sonnet',
+      'google/gemini-2.5-flash',
+      'google/gemini-2.5-pro',
+      'openai/gpt-4o',
+      'openai/o3-mini',
+      'deepseek/deepseek-chat',
+      'deepseek/deepseek-r1',
+      'google/gemma-4-26b-a4b-it:free',
+    ],
+  },
+  {
+    label: 'Cloudflare AI',
+    protocol: 'cloudflare',
+    baseUrl: 'https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/ai/v1',
+    preferredModels: [
+      '@cf/meta/llama-3.2-11b-vision-instruct',
+      '@cf/qwen/qwq-32b',
+      '@cf/meta/llama-3.3-70b-instruct-fp8',
+      '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b',
+      '@cf/meta/llama-3.1-8b-instruct',
+      '@cf/meta/llama-3-8b-instruct',
+      '@cf/mistral/mistral-7b-instruct-v0.2',
+    ],
+  },
+  {
     label: 'Atlas Cloud',
     protocol: 'openai',
     baseUrl: 'https://api.atlascloud.ai/v1',
@@ -192,21 +222,7 @@ export const KNOWN_PROVIDERS: KnownProvider[] = [
       url: 'https://atlascloud.ai/?utm_source=open_design&utm_medium=provider_preset&utm_campaign=atlascloud_byok',
     },
   },
-  {
-    label: 'OpenRouter',
-    protocol: 'openai',
-    baseUrl: 'https://openrouter.ai/api/v1',
-    preferredModels: [
-      'anthropic/claude-3.7-sonnet',
-      'anthropic/claude-3.5-sonnet',
-      'google/gemini-2.5-flash',
-      'google/gemini-2.5-pro',
-      'openai/gpt-4o',
-      'openai/o3-mini',
-      'deepseek/deepseek-chat',
-      'deepseek/deepseek-r1',
-    ],
-  },
+
   {
     label: 'Azure OpenAI',
     protocol: 'azure',
@@ -494,6 +510,7 @@ const BYOK_PROVIDER_PRESET_SPECS = [
   { id: 'google-ai-studio', title: 'Google Gemini', providerLabel: 'Google Gemini' },
   { id: 'ollama', title: 'Ollama Cloud', providerLabel: 'Ollama Cloud (managed)' },
   { id: 'azure', title: 'Azure OpenAI', providerLabel: 'Azure OpenAI' },
+  { id: 'cloudflare', title: 'Cloudflare AI', providerLabel: 'Cloudflare AI' },
   { id: 'siliconflow-cn', title: 'SiliconFlow (CN)', providerLabel: 'SiliconFlow (CN)' },
   {
     id: 'siliconflow-global',

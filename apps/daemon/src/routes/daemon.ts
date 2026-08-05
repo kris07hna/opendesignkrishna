@@ -29,6 +29,28 @@ export function registerDaemonRoutes(app: Express, deps: RegisterDaemonRoutesDep
   const { db, env, host, http, paths, sandboxRuntime } = deps;
   const { requireLocalDaemonRequest, sendApiError } = http;
 
+  app.get('/', async (_req, res) => {
+    const versionInfo = await readCurrentAppVersionInfo();
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.json({
+      ok: true,
+      service: 'Open Design Daemon',
+      version: versionInfo.version,
+      port: deps.getResolvedPort(),
+    });
+  });
+
+  app.get('/api/health', async (_req, res) => {
+    const versionInfo = await readCurrentAppVersionInfo();
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.json({
+      ok: true,
+      service: 'Open Design Daemon',
+      version: versionInfo.version,
+      port: deps.getResolvedPort(),
+    });
+  });
+
   app.get('/api/daemon/status', async (_req, res) => {
     const versionInfo = await readCurrentAppVersionInfo();
     res.json({

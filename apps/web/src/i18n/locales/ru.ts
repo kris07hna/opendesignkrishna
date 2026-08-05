@@ -4286,4 +4286,6 @@ export const ru: Dict = {
   'questions.uploadNeedsProject': 'Для загрузки файлов нужен активный проект.',
   'questions.uploadPartialFailed': 'Загружено файлов: {uploaded}, не удалось: {failed}.',
   'questions.uploadFailed': 'Не удалось загрузить файлы: {failed}.',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

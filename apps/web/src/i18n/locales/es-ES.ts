@@ -4286,4 +4286,6 @@ export const esES: Dict = {
   'questions.uploadNeedsProject': 'La subida de archivos necesita un proyecto activo.',
   'questions.uploadPartialFailed': 'Se subieron {uploaded} archivo(s), pero {failed} fallaron.',
   'questions.uploadFailed': 'Falló la subida de {failed} archivo(s).',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

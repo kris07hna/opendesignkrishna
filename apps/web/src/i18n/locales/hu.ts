@@ -4286,4 +4286,6 @@ export const hu: Dict = {
   'questions.uploadNeedsProject': 'A fájlfeltöltéshez aktív projekt szükséges.',
   'questions.uploadPartialFailed': '{uploaded} fájl feltöltve, {failed} sikertelen.',
   'questions.uploadFailed': '{failed} fájl feltöltése sikertelen.',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

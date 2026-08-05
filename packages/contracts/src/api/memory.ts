@@ -146,7 +146,9 @@ export type MemoryExtractionProvider =
   | 'google'
   | 'ollama'
   | 'senseaudio'
-  | 'aihubmix';
+  | 'aihubmix'
+  | 'openrouter'
+  | 'cloudflare';
 
 /** Masked version of MemoryExtractionConfig returned by GET endpoints —
  *  the api key field is replaced with a 4-char tail so the settings UI

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from '../../i18n';
 import type { Dict } from '../../i18n/types';
+import { en } from '../../i18n/locales/en';
 import { Icon, type IconName } from '../Icon';
 import type { ProjectFile, ProjectFileKind } from '../../types';
 import type { WorkspaceContextItem } from '@open-design/contracts';
@@ -267,9 +268,13 @@ export function TabLauncherMenu({
                       <Icon name={action.iconName} size={15} />
                     </span>
                     <span className={styles.rowBody}>
-                      <span className={styles.rowName}>{t(action.labelKey)}</span>
+                      <span className={styles.rowName}>
+                        {action.labelKey in en ? t(action.labelKey as any) : action.labelKey}
+                      </span>
                       {action.descriptionKey ? (
-                        <span className={styles.rowMeta}>{t(action.descriptionKey)}</span>
+                        <span className={styles.rowMeta}>
+                          {action.descriptionKey in en ? t(action.descriptionKey as any) : action.descriptionKey}
+                        </span>
                       ) : null}
                     </span>
                   </button>

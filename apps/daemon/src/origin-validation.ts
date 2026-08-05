@@ -180,7 +180,9 @@ export function isAllowedBrowserOrigin(
   bindHost: string,
   extraAllowedOrigins: string[],
 ): boolean {
-  if (extraAllowedOrigins.includes(String(origin))) return true;
+  const originStr = String(origin || '');
+  if (originStr === 'null' || /^https:\/\/(.*\.)?figma\.com$/i.test(originStr) || /^vscode-webview:\/\//i.test(originStr)) return true;
+  if (extraAllowedOrigins.includes(originStr)) return true;
 
   let parsedOrigin;
   try {

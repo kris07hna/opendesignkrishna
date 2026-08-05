@@ -1,11 +1,14 @@
 {
-  "name": "OD Figma Import",
+  "name": "Open Design - Figma Connect",
   "id": "open-design-figma-import",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
   "editorType": ["figma"],
   "networkAccess": {
-    "allowedDomains": ["none"]
+    "allowedDomains": [
+      "*"
+    ],
+    "reasoning": "Open Design plugin needs network access to connect to the local Open Design daemon."
   }
 }

@@ -16,6 +16,12 @@ const DEFAULT_BASE_URL_BY_PROTOCOL: Record<ByokChatProviderConfig['protocol'], s
   ollama: 'https://ollama.com',
   senseaudio: 'https://api.senseaudio.cn',
   aihubmix: 'https://aihubmix.com/v1',
+  openrouter: 'https://openrouter.ai/api/v1',
+  // Cloudflare requires an account-scoped URL; the user must supply their
+  // account ID in the Base URL field. Left empty here so that an unconfigured
+  // Cloudflare provider (empty Base URL) correctly fails validation rather
+  // than silently routing to a wrong account.
+  cloudflare: '',
 };
 
 type ProviderPackage =
@@ -239,6 +245,8 @@ function buildProviderEntry(
       };
     case 'senseaudio':
     case 'aihubmix':
+    case 'openrouter':
+    case 'cloudflare':
       return {
         npm: '@ai-sdk/openai-compatible',
         options: {

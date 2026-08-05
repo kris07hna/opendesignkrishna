@@ -194,6 +194,14 @@ const PROVIDER_DEFAULTS = {
     model: 'gpt-4o-mini',
     baseUrl: 'https://aihubmix.com/v1',
   },
+  openrouter: {
+    model: 'google/gemini-2.5-flash',
+    baseUrl: 'https://openrouter.ai/api/v1',
+  },
+  cloudflare: {
+    model: '@cf/meta/llama-3-8b-instruct',
+    baseUrl: '',
+  },
 };
 
 // Some Settings -> Media providers credentials are usable for text
@@ -264,6 +272,12 @@ function envKeyFor(provider) {
       || process.env.AIHUBMIX_API_KEY?.trim()
       || ''
     );
+  }
+  if (provider === 'openrouter') {
+    return process.env.OPENROUTER_API_KEY?.trim() || '';
+  }
+  if (provider === 'cloudflare') {
+    return process.env.CLOUDFLARE_API_KEY?.trim() || process.env.CF_API_KEY?.trim() || '';
   }
   return '';
 }

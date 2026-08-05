@@ -4743,4 +4743,6 @@ export const zhCN: Dict = {
   "questions.uploadNeedsProject": "文件上传需要一个活跃的项目。",
   "questions.uploadPartialFailed": "已上传 {uploaded} 个文件，{failed} 个失败。",
   "questions.uploadFailed": "有 {failed} 个文件上传失败。",
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

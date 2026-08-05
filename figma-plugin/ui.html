@@ -3,115 +3,496 @@
   <head>
     <meta charset="utf-8" />
     <style>
-      :root { color-scheme: light; }
+      :root {
+        color-scheme: light;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --bg-main: #ffffff;
+        --border-color: #e2e8f0;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --success: #16a34a;
+        --danger: #dc2626;
+        --card-bg: #f8fafc;
+      }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        padding: 16px;
+        padding: 0;
         font-family: Inter, system-ui, -apple-system, sans-serif;
-        color: #111827;
-        background: #fff;
+        color: var(--text-main);
+        background: var(--bg-main);
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      
+      /* Header & Connection Bar */
+      .header {
+        background: #f8fafc;
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .brand-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
         font-size: 13px;
       }
-      h1 { font-size: 14px; margin: 0 0 4px; }
-      p.lead { margin: 0 0 14px; color: #6b7280; line-height: 1.45; }
-      .drop {
-        border: 1.5px dashed #d1d5db;
-        border-radius: 10px;
-        padding: 18px 12px;
-        text-align: center;
-        color: #6b7280;
-        cursor: pointer;
-        transition: border-color 160ms, background 160ms;
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        background: #e2e8f0;
+        color: var(--text-muted);
       }
-      .drop:hover, .drop.over { border-color: #2563eb; background: #f8faff; color: #2563eb; }
-      .drop strong { color: #111827; }
-      .or { text-align: center; color: #9ca3af; font-size: 11px; margin: 10px 0; }
+      .status-pill.online {
+        background: #dcfce7;
+        color: #15803d;
+      }
+      .status-pill.offline {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      
+      .daemon-input-row {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .daemon-input-row label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      input[type="text"] {
+        flex: 1;
+        height: 26px;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        padding: 0 8px;
+        font-size: 11px;
+        outline: none;
+      }
+      input[type="text"]:focus {
+        border-color: var(--primary);
+      }
+
+      /* Main Content Area */
+      .content {
+        flex: 1;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        overflow-y: auto;
+      }
+
+      .section-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin: 0 0 6px 0;
+      }
+
+      /* Drop Zone & Inputs */
+      .drop-zone {
+        border: 1.5px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 20px 12px;
+        text-align: center;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: border-color 150ms, background 150ms;
+        display: block;
+        background: #fafafa;
+      }
+      .drop-zone:hover, .drop-zone.over {
+        border-color: var(--primary);
+        background: #eff6ff;
+        color: var(--primary);
+      }
+      .drop-zone strong { color: var(--text-main); }
+      input[type='file'] { display: none; }
+
+      .divider {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 10px;
+        margin: -4px 0;
+      }
+
       textarea {
         width: 100%;
-        height: 96px;
+        height: 75px;
         resize: vertical;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
         padding: 8px 10px;
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 11px;
+        font-size: 10px;
+        outline: none;
       }
-      .row { display: flex; gap: 8px; margin-top: 12px; }
-      button {
-        flex: 1;
-        height: 34px;
+      textarea:focus {
+        border-color: var(--primary);
+      }
+
+      /* Actions card */
+      .actions-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
         border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .btn {
+        height: 32px;
+        border-radius: 6px;
         border: 1px solid transparent;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 600;
         cursor: pointer;
+        transition: background 150ms, opacity 150ms;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
       }
-      .primary { background: #2563eb; color: #fff; }
-      .primary:hover { background: #1d4ed8; }
-      .primary:disabled { background: #93b4f5; cursor: default; }
-      .ghost { background: #fff; border-color: #e5e7eb; color: #111827; }
-      .ghost:hover { background: #f9fafb; }
-      .msg { margin-top: 10px; min-height: 16px; font-size: 12px; }
-      .msg[data-kind='ok'] { color: #16a34a; }
-      .msg[data-kind='err'] { color: #dc2626; }
-      input[type='file'] { display: none; }
+      .btn-primary { background: var(--primary); color: #fff; }
+      .btn-primary:hover { background: var(--primary-hover); }
+      .btn-primary:disabled { background: #93b4f5; cursor: not-allowed; opacity: 0.7; }
+      .btn-secondary { background: #ffffff; border-color: var(--border-color); color: var(--text-main); }
+      .btn-secondary:hover { background: #f1f5f9; }
+
+      /* Footer & Status */
+      .footer {
+        padding: 10px 14px;
+        border-top: 1px solid var(--border-color);
+        background: #fafafa;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .status-bar {
+        min-height: 16px;
+        font-size: 11px;
+        line-height: 1.4;
+      }
+      .status-bar[data-kind='ok'] { color: var(--success); }
+      .status-bar[data-kind='err'] { color: var(--danger); }
+
+      .footer-buttons {
+        display: flex;
+        gap: 8px;
+      }
+      .footer-buttons .btn { flex: 1; }
+      /* Navigation Tabs */
+      .nav-tabs {
+        display: flex;
+        background: #f1f5f9;
+        border-bottom: 1px solid var(--border-color);
+        padding: 4px 6px 0 6px;
+        gap: 4px;
+      }
+      .nav-tab {
+        flex: 1;
+        padding: 6px 8px;
+        font-size: 10px;
+        font-weight: 600;
+        text-align: center;
+        background: transparent;
+        border: none;
+        border-radius: 6px 6px 0 0;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: background 150ms, color 150ms;
+      }
+      .nav-tab.active {
+        background: var(--bg-main);
+        color: var(--primary);
+        border: 1px solid var(--border-color);
+        border-bottom-color: var(--bg-main);
+      }
+
+      .tab-content { display: none; }
+      .tab-content.active { display: flex; flex-direction: column; gap: 12px; }
     </style>
   </head>
   <body>
-    <h1>OD Figma Import</h1>
-    <p class="lead">
-      Load an <strong>.od-figma.json</strong> capture from the OD Clipper or the OD Library
-      (“Download Figma”) to rebuild it as editable layers.
-    </p>
-
-    <label class="drop" id="drop">
-      Drop or <strong>choose a .od-figma.json file</strong>
-      <input id="file" type="file" accept=".json,application/json" />
-    </label>
-
-    <div class="or">— or paste the JSON —</div>
-    <textarea id="json" placeholder='{ "version": 1, "root": { … } }'></textarea>
-
-    <div class="row">
-      <button class="ghost" id="cancel" type="button">Close</button>
-      <button class="primary" id="import" type="button" disabled>Import</button>
+    <!-- HEADER & DAEMON STATUS -->
+    <div class="header">
+      <div class="brand-title">
+        <span>⚡ Open Design Connect</span>
+        <span class="status-pill" id="daemon-status">
+          <span class="dot"></span>
+          <span id="daemon-status-text">Checking...</span>
+        </span>
+      </div>
+      <div class="daemon-input-row">
+        <label for="daemon-url">Daemon:</label>
+        <input id="daemon-url" type="text" value="http://localhost:7456" placeholder="http://localhost:7456" />
+        <button class="btn btn-secondary" id="btn-reconnect" style="height: 26px; padding: 0 8px; font-size: 10px;">Check</button>
+      </div>
     </div>
-    <div class="msg" id="msg" role="status"></div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="tab-ux" type="button">🔍 UX Suite</button>
+      <button class="nav-tab" data-tab="tab-ui" type="button">🎨 UI & Tokens</button>
+      <button class="nav-tab" data-tab="tab-copy" type="button">✍️ Copywriter</button>
+      <button class="nav-tab" data-tab="tab-settings" type="button">⚙️ Settings</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="content">
+      <!-- TAB 1: UX SUITE -->
+      <div class="tab-content active" id="tab-ux">
+        <!-- UX & WCAG ACCESSIBILITY AUDIT CARD -->
+        <div class="actions-card" style="background: #f0f9ff; border-color: #bae6fd;">
+          <div class="section-title" style="color: #0369a1;">🔍 AI UX & WCAG Accessibility Audit</div>
+          <div style="font-size: 10px; color: #334155; line-height: 1.3;">
+            Select any frame in Figma to audit composition, WCAG contrast, brand tokens, usability, and copy.
+          </div>
+          <button class="btn btn-primary" id="btn-run-audit" type="button" style="background: #0284c7;">
+            ✨ Audit Selection with AI Jury
+          </button>
+          <div id="audit-results" style="display: none; margin-top: 6px; padding: 8px; background: #ffffff; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 10px;"></div>
+        </div>
+
+        <!-- USER PERSONA GENERATOR -->
+        <div class="actions-card">
+          <div class="section-title">👤 User Persona Generator</div>
+          <input id="persona-prompt" type="text" placeholder="e.g. Busy freelance designer managing client projects..." style="font-size: 10px; height: 26px; border-radius: 4px; border: 1px solid #cbd5e1; padding: 0 6px;" />
+          <button class="btn btn-secondary" id="btn-generate-persona" type="button">
+            ✨ Generate Persona Card on Canvas
+          </button>
+        </div>
+
+        <!-- USER FLOW GENERATOR -->
+        <div class="actions-card">
+          <div class="section-title">🔀 User Flow Diagram Generator</div>
+          <input id="flow-prompt" type="text" placeholder="e.g. User signs up, verifies email, and uploads avatar..." style="font-size: 10px; height: 26px; border-radius: 4px; border: 1px solid #cbd5e1; padding: 0 6px;" />
+          <button class="btn btn-secondary" id="btn-generate-flow" type="button">
+            ✨ Generate User Flow Diagram
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: UI & TOKENS -->
+      <div class="tab-content" id="tab-ui">
+        <div class="actions-card">
+          <div class="section-title">Canvas Sync & Tokens</div>
+          <button class="btn btn-secondary" id="btn-export-selection" type="button">
+            📤 Export Figma Selection to JSON
+          </button>
+          <button class="btn btn-secondary" id="btn-create-tokens" type="button">
+            🎨 Inject Open Design Color Tokens
+          </button>
+        </div>
+
+        <div>
+          <div class="section-title">Import Capture (.od-figma.json)</div>
+          <label class="drop-zone" id="drop-zone">
+            Drop or <strong>choose an .od-figma.json file</strong>
+            <input id="file-input" type="file" accept=".json,application/json" />
+          </label>
+        </div>
+
+        <div class="divider">— or paste capture JSON —</div>
+        <textarea id="json-input" placeholder='{ "version": 1, "root": { … } }'></textarea>
+      </div>
+
+      <!-- TAB 3: UX COPYWRITER -->
+      <div class="tab-content" id="tab-copy">
+        <div class="actions-card" style="background: #fdf4ff; border-color: #f5d0fe;">
+          <div class="section-title" style="color: #86198f;">✍️ Contextual UX Copywriter</div>
+          <div style="font-size: 10px; color: #475569;">
+            Type a phrase or CTA, get 4 high-converting UX alternatives, and apply directly to your selected Figma Text Layer!
+          </div>
+          <input id="copy-input" type="text" placeholder="e.g. Click Here to Submit Order" style="font-size: 10px; height: 26px; border-radius: 4px; border: 1px solid #cbd5e1; padding: 0 6px;" />
+          <button class="btn btn-primary" id="btn-generate-copy" type="button" style="background: #a21caf;">
+            ✨ Generate Copy Suggestions
+          </button>
+          <div id="copy-results" style="display: none; margin-top: 6px; padding: 6px; background: #ffffff; border-radius: 6px; border: 1px solid #e9d5ff; font-size: 10px;"></div>
+        </div>
+      </div>
+
+      <!-- TAB 4: SETTINGS -->
+      <div class="tab-content" id="tab-settings">
+        <div class="actions-card">
+          <div class="section-title">⚙️ AI Provider Settings (BYOK)</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div>
+              <label style="font-weight: 600; font-size: 10px;">Protocol:</label>
+              <select id="audit-provider-protocol" style="width: 100%; height: 26px; font-size: 10px; border-radius: 4px; border: 1px solid #cbd5e1; margin-top: 2px;">
+                <option value="openrouter">OpenRouter</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="google">Google Gemini</option>
+                <option value="cloudflare">Cloudflare Workers AI</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-weight: 600; font-size: 10px;">Model:</label>
+              <input id="audit-provider-model" type="text" value="google/gemini-2.5-flash" placeholder="google/gemini-2.5-flash" style="width: 100%; height: 26px; font-size: 10px; margin-top: 2px;" />
+            </div>
+             <div>
+               <label style="font-weight: 600; font-size: 10px;">API Key:</label>
+               <input id="audit-provider-key" type="password" value="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" placeholder="sk-..." style="width: 100%; height: 26px; font-size: 10px; margin-top: 2px;" />
+             </div>
+             <div id="cloudflare-account-id-row" style="display: none;">
+               <label style="font-weight: 600; font-size: 10px;">Cloudflare Account ID:</label>
+               <input id="audit-provider-cf-account" type="text" value="25920c1df3b7ec0a85ee2032cd681398" placeholder="25920c1df3b7ec0a85ee2032cd681398" style="width: 100%; height: 26px; font-size: 10px; margin-top: 2px;" />
+             </div>
+           </div>
+         </div>
+       </div>
+    </div>
+
+    <!-- FOOTER & IMPORT CONTROLS -->
+    <div class="footer">
+      <div class="status-bar" id="status-msg" role="status"></div>
+      <div class="footer-buttons">
+        <button class="btn btn-secondary" id="btn-close" type="button">Close</button>
+        <button class="btn btn-primary" id="btn-import" type="button" disabled>Import to Figma</button>
+      </div>
+    </div>
 
     <script>
       const $ = (id) => document.getElementById(id);
-      let pending = null; // parsed IR awaiting import
+      let pendingIr = null;
+      let isAuditing = false;
 
-      function setMsg(text, kind) {
-        const el = $('msg');
+      // Load saved BYOK settings
+      try {
+        const savedProto = localStorage.getItem('od_audit_proto');
+        const savedModel = localStorage.getItem('od_audit_model');
+        const savedKey = localStorage.getItem('od_audit_key');
+        const savedCfAccount = localStorage.getItem('od_audit_cf_account');
+        if (savedProto) $('audit-provider-protocol').value = savedProto;
+        if (savedModel) $('audit-provider-model').value = savedModel;
+        if (savedKey || !localStorage.getItem('od_audit_key')) {
+          $('audit-provider-key').value = savedKey || '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';
+        }
+        if (savedCfAccount) $('audit-provider-cf-account').value = savedCfAccount;
+      } catch {}
+
+      function updateSettingsVisibility() {
+        const isCF = $('audit-provider-protocol').value === 'cloudflare';
+        $('cloudflare-account-id-row').style.display = isCF ? 'block' : 'none';
+      }
+
+      // Add auto-saving and visibility change listeners
+      $('audit-provider-protocol').addEventListener('change', () => {
+        const proto = $('audit-provider-protocol').value;
+        localStorage.setItem('od_audit_proto', proto);
+        
+        if (proto === 'cloudflare') {
+          $('audit-provider-model').value = '@cf/openai/gpt-oss-120b';
+          $('audit-provider-key').value = '';
+          localStorage.setItem('od_audit_model', '@cf/openai/gpt-oss-120b');
+          localStorage.setItem('od_audit_key', '');
+        } else if (proto === 'openrouter') {
+          $('audit-provider-model').value = 'google/gemini-2.5-flash';
+          $('audit-provider-key').value = '';
+          localStorage.setItem('od_audit_model', 'google/gemini-2.5-flash');
+          localStorage.setItem('od_audit_key', '');
+        } else if (proto === 'google') {
+          $('audit-provider-model').value = 'gemini-3.5-flash';
+          $('audit-provider-key').value = '';
+          localStorage.setItem('od_audit_model', 'gemini-3.5-flash');
+          localStorage.setItem('od_audit_key', '');
+        }
+        
+        updateSettingsVisibility();
+      });
+      $('audit-provider-model').addEventListener('input', () => {
+        localStorage.setItem('od_audit_model', $('audit-provider-model').value);
+      });
+      $('audit-provider-key').addEventListener('input', () => {
+        localStorage.setItem('od_audit_key', $('audit-provider-key').value);
+      });
+      $('audit-provider-cf-account').addEventListener('input', () => {
+        localStorage.setItem('od_audit_cf_account', $('audit-provider-cf-account').value);
+      });
+
+      // Initial visibility setup
+      updateSettingsVisibility();
+
+      function setStatus(text, kind) {
+        const el = $('status-msg');
         el.textContent = text || '';
         el.dataset.kind = kind || '';
       }
 
-      // --- image-fill normalization --------------------------------------
-      //
-      // figma.createImage() (used by code.js) only decodes PNG and JPEG, but a
-      // web capture's image fills can be SVG, WebP, GIF, AVIF or BMP — Figma
-      // rejects those, so on the main thread they would silently drop and the
-      // imported layout would be missing logos, icons and hero images.
-      //
-      // This UI runs in a real browser iframe (Figma desktop is Chromium), so
-      // it CAN decode every format an <img> understands and re-encode it to a
-      // PNG data URI here, before the IR is posted to the main thread. SVG (a
-      // vector) is rasterized at 2x its box for crispness; raster formats are
-      // re-encoded at their own pixel size. Anything that fails to decode is
-      // dropped so a single bad image can't abort the import.
+      // --- Daemon Health Check ---
+      async function checkDaemon() {
+        const rawUrl = $('daemon-url').value.trim() || 'http://localhost:7456';
+        const url = rawUrl.replace(/\/+$/, '');
+        const pill = $('daemon-status');
+        const text = $('daemon-status-text');
+
+        text.textContent = 'Connecting...';
+        pill.className = 'status-pill';
+
+        try {
+          let res = await fetch(`${url}/api/daemon/status`, { method: 'GET' }).catch(() => null);
+          if (!res || !res.ok) {
+            res = await fetch(`${url}/api/health`, { method: 'GET' }).catch(() => null);
+          }
+          if (!res || !res.ok) {
+            res = await fetch(`${url}/`, { method: 'GET' }).catch(() => null);
+          }
+          if (res && (res.ok || res.status === 200 || res.status === 304)) {
+            pill.className = 'status-pill online';
+            text.textContent = 'Connected';
+            setStatus('Daemon connected!', 'ok');
+          } else {
+            pill.className = 'status-pill offline';
+            text.textContent = 'Daemon Offline';
+            setStatus('Daemon offline or port mismatch. Check endpoint URL.', 'err');
+          }
+        } catch (e) {
+          pill.className = 'status-pill offline';
+          text.textContent = 'Daemon Offline';
+          setStatus('Connection error. Verify daemon is running.', 'err');
+        }
+      }
+
+      $('btn-reconnect').addEventListener('click', checkDaemon);
+      $('daemon-url').addEventListener('change', checkDaemon);
+      checkDaemon();
+
+      // --- Image Normalization (SVG / WebP / GIF / AVIF -> PNG) ---
       const FIGMA_SAFE_IMAGE = /^image\/(png|jpe?g)$/i;
-      const MAX_RASTER_DIM = 4096; // Figma image ceiling
+      const MAX_RASTER_DIM = 4096;
 
       function dataUriMime(uri) {
         const m = /^data:([^;,]+)/.exec(uri || '');
         return m ? m[1] : '';
       }
 
-      // Decode any <img>-renderable data URI and re-encode it as PNG. `boxW/boxH`
-      // are the fill's layout box, used to size vectors / dimensionless images.
       function rasterizeToPng(dataUri, boxW, boxH, isVector) {
         return new Promise((resolve) => {
           const img = new Image();
@@ -123,7 +504,7 @@
                 w = Math.max(1, Math.round(boxW) || 300);
                 h = Math.max(1, Math.round(boxH) || 150);
               }
-              const scale = isVector ? 2 : 1; // upscale vectors so they stay crisp
+              const scale = isVector ? 2 : 1;
               w = Math.max(1, Math.round(w * scale));
               h = Math.max(1, Math.round(h * scale));
               const longest = Math.max(w, h);
@@ -146,15 +527,47 @@
         });
       }
 
-      // Walk the IR and convert every non-PNG/JPEG image fill to PNG in place.
-      // Returns { converted, dropped } for the status line.
       async function normalizeImageFills(ir) {
         const tasks = [];
+        const daemonUrl = ($('daemon-url').value.trim() || 'http://localhost:7456').replace(/\/+$/, '');
+
         const walk = (node) => {
           if (!node) return;
           if (Array.isArray(node.fills)) {
             for (const f of node.fills) {
-              if (!f || f.type !== 'IMAGE' || typeof f.dataUri !== 'string') continue;
+              if (!f || f.type !== 'IMAGE') continue;
+
+              if (!f.dataUri && f.url) {
+                const proxyPromise = fetch(`${daemonUrl}/api/figma/proxy-image?url=${encodeURIComponent(f.url)}`)
+                  .then((res) => res.json())
+                  .then((data) => {
+                    if (data && data.dataUri) {
+                      f.dataUri = data.dataUri;
+                    }
+                  })
+                  .catch(() => {});
+
+                tasks.push(
+                  proxyPromise.then(() => {
+                    if (!f.dataUri) {
+                      f.__drop = true;
+                      return;
+                    }
+                    if (FIGMA_SAFE_IMAGE.test(dataUriMime(f.dataUri))) {
+                      f.__ok = true;
+                      return;
+                    }
+                    const isVector = /svg/i.test(dataUriMime(f.dataUri));
+                    return rasterizeToPng(f.dataUri, node.width, node.height, isVector).then((png) => {
+                      if (png) { f.dataUri = png; f.__ok = true; }
+                      else { f.__drop = true; }
+                    });
+                  })
+                );
+                continue;
+              }
+
+              if (typeof f.dataUri !== 'string') continue;
               if (FIGMA_SAFE_IMAGE.test(dataUriMime(f.dataUri))) continue;
               const isVector = /svg/i.test(dataUriMime(f.dataUri));
               tasks.push(
@@ -186,86 +599,400 @@
         return { converted, dropped };
       }
 
-      function accept(text, label) {
+      // --- JSON Accept & Parsing ---
+      function acceptJson(text, label) {
         try {
           const ir = JSON.parse(text);
-          if (!ir || !ir.root) throw new Error('missing root');
-          pending = ir;
-          $('import').disabled = false;
-          setMsg(`Ready: ${label || (ir.source && ir.source.title) || 'capture'}`, 'ok');
+          if (!ir || !ir.root) throw new Error('missing root element');
+          pendingIr = ir;
+          $('btn-import').disabled = false;
+          setStatus(`Ready to import: ${label || (ir.source && ir.source.title) || 'Capture'}`, 'ok');
         } catch (e) {
-          pending = null;
-          $('import').disabled = true;
-          setMsg('That doesn’t look like an OD Figma capture.', 'err');
+          pendingIr = null;
+          $('btn-import').disabled = true;
+          setStatus('Invalid .od-figma.json capture format.', 'err');
         }
       }
 
-      $('file').addEventListener('change', (e) => {
-        const f = e.target.files && e.target.files[0];
-        if (!f) return;
+      $('file-input').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
-        reader.onload = () => accept(String(reader.result), f.name);
-        reader.onerror = () => setMsg('Could not read that file.', 'err');
-        reader.readAsText(f);
+        reader.onload = () => acceptJson(String(reader.result), file.name);
+        reader.onerror = () => setStatus('Could not read selected file.', 'err');
+        reader.readAsText(file);
       });
 
-      const drop = $('drop');
+      const dropZone = $('drop-zone');
       ['dragenter', 'dragover'].forEach((ev) =>
-        drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }),
+        dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.add('over'); }),
       );
       ['dragleave', 'drop'].forEach((ev) =>
-        drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }),
+        dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.remove('over'); }),
       );
-      drop.addEventListener('drop', (e) => {
-        const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (!f) return;
+      dropZone.addEventListener('drop', (e) => {
+        const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (!file) return;
         const reader = new FileReader();
-        reader.onload = () => accept(String(reader.result), f.name);
-        reader.readAsText(f);
+        reader.onload = () => acceptJson(String(reader.result), file.name);
+        reader.readAsText(file);
       });
 
-      $('json').addEventListener('input', (e) => {
-        const v = e.target.value.trim();
-        if (v) accept(v, 'pasted JSON');
-        else { pending = null; $('import').disabled = true; setMsg(''); }
+      $('json-input').addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val) acceptJson(val, 'pasted JSON');
+        else { pendingIr = null; $('btn-import').disabled = true; setStatus(''); }
       });
 
-      let lastImageStats = null; // { converted, dropped } from the most recent import
-
-      $('import').addEventListener('click', async () => {
-        if (!pending) return;
-        $('import').disabled = true;
+      // --- Import Handler ---
+      let lastImageStats = null;
+      $('btn-import').addEventListener('click', async () => {
+        if (!pendingIr) return;
+        $('btn-import').disabled = true;
         try {
-          setMsg('Preparing images…');
-          lastImageStats = await normalizeImageFills(pending);
-          setMsg('Importing…');
-          parent.postMessage({ pluginMessage: { type: 'import', ir: pending } }, '*');
+          setStatus('Preparing & optimizing images…', 'ok');
+          lastImageStats = await normalizeImageFills(pendingIr);
+          setStatus('Building editable layers in Figma…', 'ok');
+          parent.postMessage({ pluginMessage: { type: 'import', ir: pendingIr } }, '*');
         } catch (e) {
-          setMsg(`Could not prepare images: ${(e && e.message) || e}`, 'err');
-          $('import').disabled = false;
+          setStatus(`Failed to process images: ${e.message || e}`, 'err');
+          $('btn-import').disabled = false;
         }
       });
 
-      $('cancel').addEventListener('click', () => {
+      // --- Export & Color Tokens ---
+      $('btn-export-selection').addEventListener('click', () => {
+        isAuditing = false;
+        parent.postMessage({ pluginMessage: { type: 'export-selection' } }, '*');
+      });
+
+      $('btn-create-tokens').addEventListener('click', () => {
+        const palette = {
+          primary: '#2563eb',
+          primaryHover: '#1d4ed8',
+          background: '#ffffff',
+          surface: '#f8fafc',
+          textMain: '#0f172a',
+          textMuted: '#64748b',
+          success: '#16a34a',
+          danger: '#dc2626'
+        };
+        parent.postMessage({ pluginMessage: { type: 'create-tokens', palette } }, '*');
+      });
+
+      // --- UX & WCAG Audit Handler ---
+      $('btn-run-audit').addEventListener('click', () => {
+        const key = $('audit-provider-key').value.trim();
+        const proto = $('audit-provider-protocol').value;
+        const model = $('audit-provider-model').value.trim();
+
+        if (proto !== 'openrouter' && !key) {
+          setStatus('Please provide an API Key in AI Provider Settings.', 'err');
+          return;
+        }
+
+        try {
+          localStorage.setItem('od_audit_proto', proto);
+          localStorage.setItem('od_audit_model', model);
+          localStorage.setItem('od_audit_key', key);
+        } catch {}
+
+        isAuditing = true;
+        setStatus('Serializing selected Figma element...', 'ok');
+        parent.postMessage({ pluginMessage: { type: 'request-serialize' } }, '*');
+      });
+
+      $('btn-close').addEventListener('click', () => {
         parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
       });
 
-      window.onmessage = (e) => {
-        const m = e.data && e.data.pluginMessage;
+      async function performAudit(elementsData) {
+        const rawUrl = $('daemon-url').value.trim() || 'http://localhost:7456';
+        const url = rawUrl.replace(/\/+$/, '');
+        const auditBox = $('audit-results');
+        
+        auditBox.style.display = 'block';
+        auditBox.innerHTML = '<div style="color: #0284c7; font-weight: 600;">⏳ Running 5-Specialist AI UX & WCAG Audit...</div>';
+        setStatus('Analyzing design with AI Jury (Accessibility, Contrast, Usability)...', 'ok');
+
+        try {
+          const res = await fetch(`${url}/api/figma/audit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              elements: elementsData,
+              byokProvider: {
+                protocol: $('audit-provider-protocol').value,
+                model: $('audit-provider-model').value.trim() || 'gemini-3.5-flash',
+                apiKey: $('audit-provider-key').value.trim(),
+                baseUrl: $('audit-provider-protocol').value === 'cloudflare' ? $('audit-provider-cf-account').value.trim() : undefined
+              }
+            })
+          });
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => ({}));
+            throw new Error(errJson.message || `Server returned ${res.status}`);
+          }
+
+          const report = await res.json();
+          renderAuditReport(report);
+          setStatus('UX & WCAG Audit completed successfully!', 'ok');
+        } catch (err) {
+          auditBox.innerHTML = `<div style="color: #dc2626;"><strong>Audit Failed:</strong> ${err.message}</div>`;
+          setStatus(`Audit Error: ${err.message}`, 'err');
+        } finally {
+          isAuditing = false;
+        }
+      }
+
+      function renderAuditReport(report) {
+        const auditBox = $('audit-results');
+        if (!report || !report.panelists) {
+          auditBox.innerHTML = '<div style="color: #dc2626;">Invalid audit report format returned.</div>';
+          return;
+        }
+
+        const scoreColor = (score) => {
+          if (score >= 8) return '#16a34a';
+          if (score >= 6) return '#d97706';
+          return '#dc2626';
+        };
+
+        const composite = typeof report.composite === 'number' ? report.composite.toFixed(1) : 'N/A';
+        const p = report.panelists || {};
+
+        let html = `
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 6px;">
+            <strong style="color: #0f172a; font-size: 11px;">🏆 Composite Audit Score</strong>
+            <span style="font-size: 14px; font-weight: 800; color: ${scoreColor(report.composite)};">${composite} / 10</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+        `;
+
+        const Specialists = [
+          { key: 'accessibility', label: '♿ Accessibility & WCAG' },
+          { key: 'designer', label: '🎨 Visual Layout & Design' },
+          { key: 'critic', label: '👁️ Usability & UX Flow' },
+          { key: 'brand', label: '🏷️ Brand Token Compliance' },
+          { key: 'copy', label: '✍️ Typography & Copy' }
+        ];
+
+        Specialists.forEach(({ key, label }) => {
+          const item = p[key];
+          if (!item) return;
+          const score = typeof item.score === 'number' ? item.score.toFixed(1) : '-';
+          const mustFix = Array.isArray(item.mustFix) && item.mustFix.length > 0 ? item.mustFix : [];
+          
+          html += `
+            <div style="border: 1px solid #f1f5f9; padding: 6px; border-radius: 4px; background: #fafafa;">
+              <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                <span>${label}</span>
+                <span style="color: ${scoreColor(item.score)}">${score}</span>
+              </div>
+              <div style="color: #475569; margin-top: 2px;">${item.notes || ''}</div>
+              ${mustFix.map(fix => `<div style="color: #dc2626; margin-top: 2px; font-weight: 600;">⚠️ MUST FIX: ${fix}</div>`).join('')}
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+        auditBox.innerHTML = html;
+      }
+
+      // --- Tab Navigation Handler ---
+      document.querySelectorAll('.nav-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.nav-tab').forEach((t) => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
+          tab.classList.add('active');
+          const targetId = tab.dataset.tab;
+          if ($(targetId)) $(targetId).classList.add('active');
+        });
+      });
+
+      // --- Persona Generator Handler ---
+      $('btn-generate-persona').addEventListener('click', async () => {
+        const prompt = $('persona-prompt').value.trim();
+        if (!prompt) return setStatus('Please enter a description for the target persona.', 'err');
+
+        const rawUrl = $('daemon-url').value.trim() || 'http://localhost:7456';
+        const url = rawUrl.replace(/\/+$/, '');
+        setStatus('Generating User Persona Card with AI...', 'ok');
+
+        try {
+          const res = await fetch(`${url}/api/figma/persona`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt,
+              byokProvider: {
+                protocol: $('audit-provider-protocol').value,
+                model: $('audit-provider-model').value.trim() || 'gemini-3.5-flash',
+                apiKey: $('audit-provider-key').value.trim(),
+                baseUrl: $('audit-provider-protocol').value === 'cloudflare' ? $('audit-provider-cf-account').value.trim() : undefined
+              }
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || `Server error ${res.status}`);
+          }
+
+          const persona = await res.json();
+          parent.postMessage({ pluginMessage: { type: 'create-persona', persona } }, '*');
+          setStatus(`Persona Card "${persona.name}" generated on canvas!`, 'ok');
+        } catch (e) {
+          setStatus(`Persona error: ${e.message}`, 'err');
+        }
+      });
+
+      // --- Multimodal Industry-Grade User Flow Generator Handler ---
+      let isGeneratingFlow = false;
+      let pendingFlowTask = '';
+
+      $('btn-generate-flow').addEventListener('click', () => {
+        pendingFlowTask = $('flow-prompt').value.trim();
+        isGeneratingFlow = true;
+        setStatus('Exporting screen previews & scanning visual layout...', 'ok');
+        parent.postMessage({ pluginMessage: { type: 'request-serialize-with-images' } }, '*');
+      });
+
+      async function performFlowGeneration(elementsData, imagesData) {
+        const rawUrl = $('daemon-url').value.trim() || 'http://localhost:7456';
+        const url = rawUrl.replace(/\/+$/, '');
+        setStatus('Analyzing visual UI screens & generating industry-grade flowchart...', 'ok');
+
+        try {
+          const res = await fetch(`${url}/api/figma/flow`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              task: pendingFlowTask,
+              elements: elementsData && elementsData.length > 0 ? elementsData : undefined,
+              images: imagesData && imagesData.length > 0 ? imagesData : undefined,
+              byokProvider: {
+                protocol: $('audit-provider-protocol').value,
+                model: $('audit-provider-model').value.trim() || 'gemini-3.5-flash',
+                apiKey: $('audit-provider-key').value.trim(),
+                baseUrl: $('audit-provider-protocol').value === 'cloudflare' ? $('audit-provider-cf-account').value.trim() : undefined
+              }
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || `Server error ${res.status}`);
+          }
+
+          const flow = await res.json();
+          parent.postMessage({ pluginMessage: { type: 'create-user-flow', flow, screenImages: imagesData } }, '*');
+          setStatus('Professional Visual Flowchart generated on canvas!', 'ok');
+        } catch (e) {
+          setStatus(`User Flow error: ${e.message}`, 'err');
+        } finally {
+          isGeneratingFlow = false;
+        }
+      }
+
+      // --- UX Copywriter Handler ---
+      $('btn-generate-copy').addEventListener('click', async () => {
+        const text = $('copy-input').value.trim();
+        if (!text) return setStatus('Please enter text or a CTA phrase to optimize.', 'err');
+
+        const rawUrl = $('daemon-url').value.trim() || 'http://localhost:7456';
+        const url = rawUrl.replace(/\/+$/, '');
+        const copyBox = $('copy-results');
+        copyBox.style.display = 'block';
+        copyBox.innerHTML = '<div style="color: #a21caf; font-weight: 600;">⏳ Generating UX copy alternatives...</div>';
+
+        try {
+          const res = await fetch(`${url}/api/figma/copy`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text,
+              byokProvider: {
+                protocol: $('audit-provider-protocol').value,
+                model: $('audit-provider-model').value.trim() || 'gemini-3.5-flash',
+                apiKey: $('audit-provider-key').value.trim(),
+                baseUrl: $('audit-provider-protocol').value === 'cloudflare' ? $('audit-provider-cf-account').value.trim() : undefined
+              }
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || `Server error ${res.status}`);
+          }
+
+          const result = await res.json();
+          let html = '<div style="font-weight: 700; color: #701a75; margin-bottom: 4px;">Copy Alternatives:</div>';
+          (result.suggestions || []).forEach((item) => {
+            html += `
+              <div style="border-bottom: 1px solid #f5d0fe; padding: 4px 0;">
+                <div style="font-size: 9px; color: #6b21a8; font-weight: 600;">${item.category}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                  <span style="font-size: 11px; font-weight: 600; color: #0f172a;">${item.text}</span>
+                  <button class="btn btn-secondary btn-apply-copy" data-text="${item.text.replace(/"/g, '&quot;')}" type="button" style="height: 20px; font-size: 9px; padding: 0 6px;">Apply to Layer</button>
+                </div>
+              </div>
+            `;
+          });
+          copyBox.innerHTML = html;
+
+          document.querySelectorAll('.btn-apply-copy').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+              const newText = e.target.dataset.text;
+              parent.postMessage({ pluginMessage: { type: 'apply-copy-suggestion', text: newText } }, '*');
+            });
+          });
+
+          setStatus('UX Copy suggestions ready!', 'ok');
+        } catch (e) {
+          copyBox.innerHTML = `<div style="color: #dc2626;">Error: ${e.message}</div>`;
+          setStatus(`Copy error: ${e.message}`, 'err');
+        }
+      });
+
+      // --- Main Thread Message Receiver ---
+      window.onmessage = (event) => {
+        const m = event.data && event.data.pluginMessage;
         if (!m) return;
         if (m.type === 'done') {
           let note = `Imported “${m.name}”.`;
           if (lastImageStats && lastImageStats.converted) {
-            note += ` Converted ${lastImageStats.converted} image${lastImageStats.converted === 1 ? '' : 's'} (SVG/WebP/GIF → PNG).`;
+            note += ` Converted ${lastImageStats.converted} image${lastImageStats.converted === 1 ? '' : 's'}.`;
           }
-          if (lastImageStats && lastImageStats.dropped) {
-            note += ` ${lastImageStats.dropped} image${lastImageStats.dropped === 1 ? '' : 's'} could not be decoded.`;
+          setStatus(note, 'ok');
+          $('btn-import').disabled = false;
+        } else if (m.type === 'tokens-created') {
+          setStatus(`Created ${m.count} native Figma Color Styles!`, 'ok');
+        } else if (m.type === 'persona-created') {
+          setStatus('User Persona Card created on canvas!', 'ok');
+        } else if (m.type === 'flow-created') {
+          setStatus('User Flow Diagram created on canvas!', 'ok');
+        } else if (m.type === 'copy-applied') {
+          setStatus('Text layer updated in Figma!', 'ok');
+        } else if (m.type === 'serialized-data-with-images') {
+          if (isGeneratingFlow) {
+            performFlowGeneration(m.data, m.images);
           }
-          setMsg(note, 'ok');
-          $('import').disabled = false;
+        } else if (m.type === 'export-data' || m.type === 'serialized-data') {
+          if (isAuditing) {
+            performAudit(m.data);
+          } else if (isGeneratingFlow) {
+            performFlowGeneration(m.data);
+          } else {
+            const jsonStr = JSON.stringify(m.data, null, 2);
+            $('json-input').value = jsonStr;
+            setStatus('Exported selection to JSON!', 'ok');
+          }
         } else if (m.type === 'error') {
-          setMsg(`Failed: ${m.message}`, 'err');
-          $('import').disabled = false;
+          setStatus(`Error: ${m.message}`, 'err');
+          $('btn-import').disabled = false;
+          isAuditing = false;
         }
       };
     </script>

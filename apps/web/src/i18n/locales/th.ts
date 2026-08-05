@@ -4286,4 +4286,6 @@ export const th: Dict = {
   'questions.uploadNeedsProject': 'การอัปโหลดไฟล์ต้องมีโปรเจกต์ที่ใช้งานอยู่',
   'questions.uploadPartialFailed': 'อัปโหลดแล้ว {uploaded} ไฟล์ แต่ล้มเหลว {failed} ไฟล์',
   'questions.uploadFailed': 'อัปโหลดล้มเหลว {failed} ไฟล์',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

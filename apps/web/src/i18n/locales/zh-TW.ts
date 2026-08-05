@@ -4751,4 +4751,6 @@ export const zhTW: Dict = {
   "questions.uploadNeedsProject": "檔案上傳需要一個使用中的專案。",
   "questions.uploadPartialFailed": "已上傳 {uploaded} 個檔案，{failed} 個失敗。",
   "questions.uploadFailed": "有 {failed} 個檔案上傳失敗。",
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

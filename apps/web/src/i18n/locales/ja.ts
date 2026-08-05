@@ -4286,4 +4286,6 @@ export const ja: Dict = {
   'questions.uploadNeedsProject': 'ファイルのアップロードにはアクティブなプロジェクトが必要です。',
   'questions.uploadPartialFailed': '{uploaded} 件のファイルをアップロードしましたが、{failed} 件が失敗しました。',
   'questions.uploadFailed': '{failed} 件のファイルのアップロードに失敗しました。',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

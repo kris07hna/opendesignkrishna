@@ -28,7 +28,7 @@ export type DaemonCliStartupParseResult =
   | { ok: false; kind: 'help' }
   | { ok: false; kind: 'error'; message: string };
 
-export const DEFAULT_DAEMON_BIND_HOST = '127.0.0.1';
+export const DEFAULT_DAEMON_BIND_HOST = '0.0.0.0';
 
 export function normalizeDaemonBindHost(input: unknown): string {
   const host = String(input ?? '').trim();

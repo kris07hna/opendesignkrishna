@@ -28,6 +28,16 @@ const BEDROCK_MODEL_OPTIONS: ProviderModelOption[] = [
   { id: 'amazon.nova-micro-v1:0', label: 'Amazon Nova Micro' },
 ];
 
+const CLOUDFLARE_MODEL_OPTIONS: ProviderModelOption[] = [
+  { id: '@cf/meta/llama-3.2-11b-vision-instruct', label: 'Llama 3.2 11B Vision Instruct' },
+  { id: '@cf/qwen/qwq-32b', label: 'Qwen QwQ 32B (Reasoning)' },
+  { id: '@cf/meta/llama-3.3-70b-instruct-fp8', label: 'Llama 3.3 70B Instruct' },
+  { id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', label: 'DeepSeek R1 Distill Qwen 32B' },
+  { id: '@cf/meta/llama-3.1-8b-instruct', label: 'Llama 3.1 8B Instruct' },
+  { id: '@cf/mistral/mistral-7b-instruct-v0.2', label: 'Mistral 7B Instruct v0.2' },
+  { id: '@cf/qwen/qwen1.5-14b-chat-awq', label: 'Qwen 1.5 14B Chat' },
+];
+
 function appendVersionedApiPath(baseUrl: string, suffix: string): string {
   const url = new URL(baseUrl);
   const pathname = url.pathname.replace(/\/+$/, '');
@@ -241,7 +251,7 @@ function providerModelsUrl(protocol: ConnectionTestProtocol, baseUrl: string, ap
     // (GET /api/v1/models?type=llm), not the OpenAI /v1/models route.
     return aihubmixCatalogUrl(baseUrl, 'llm');
   }
-  if (protocol === 'openai' || protocol === 'senseaudio') {
+  if (protocol === 'openai' || protocol === 'senseaudio' || protocol === 'openrouter') {
     return appendVersionedApiPath(baseUrl, '/models');
   }
   if (protocol === 'anthropic') {
@@ -259,7 +269,7 @@ function providerModelsHeaders(
   protocol: ConnectionTestProtocol,
   apiKey: string,
 ): Record<string, string> {
-  if (protocol === 'openai' || protocol === 'senseaudio') {
+  if (protocol === 'openai' || protocol === 'senseaudio' || protocol === 'openrouter' || protocol === 'cloudflare') {
     return { authorization: `Bearer ${apiKey}` };
   }
   if (protocol === 'aihubmix') {
@@ -285,7 +295,7 @@ function extractModels(protocol: ConnectionTestProtocol, data: unknown): Provide
   // (e.g. gpt-image-2 → "image_generation,llm") would otherwise leak in. Those
   // belong to the dedicated image/video/audio pickers.
   if (protocol === 'aihubmix') return parseAIHubMixCatalog(data, { chatOnly: true });
-  if (protocol === 'openai' || protocol === 'senseaudio') return extractOpenAiModels(data);
+  if (protocol === 'openai' || protocol === 'senseaudio' || protocol === 'openrouter' || protocol === 'cloudflare') return extractOpenAiModels(data);
   if (protocol === 'anthropic') return extractAnthropicModels(data);
   if (protocol === 'google') return extractGoogleModels(data);
   return [];
@@ -320,6 +330,15 @@ export async function listProviderModels(
       latencyMs: Date.now() - start,
       models: BEDROCK_MODEL_OPTIONS,
       detail: 'AWS Bedrock uses a static seed until AWS credential-backed discovery is available.',
+    };
+  }
+  if (input.protocol === 'cloudflare') {
+    return {
+      ok: true,
+      kind: 'success',
+      latencyMs: Date.now() - start,
+      models: CLOUDFLARE_MODEL_OPTIONS,
+      detail: 'Cloudflare Workers AI uses a curated model catalog seed because Cloudflare API does not support GET /v1/models.',
     };
   }
 

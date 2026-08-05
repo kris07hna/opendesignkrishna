@@ -4286,4 +4286,6 @@ export const tr: Dict = {
   'questions.uploadNeedsProject': 'Dosya yüklemek için etkin bir proje gerekir.',
   'questions.uploadPartialFailed': '{uploaded} dosya yüklendi, {failed} dosya başarısız oldu.',
   'questions.uploadFailed': '{failed} dosya yüklenemedi.',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

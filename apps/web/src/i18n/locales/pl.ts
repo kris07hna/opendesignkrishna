@@ -4286,4 +4286,6 @@ export const pl: Dict = {
   'questions.uploadNeedsProject': 'Przesyłanie plików wymaga aktywnego projektu.',
   'questions.uploadPartialFailed': 'Przesłano {uploaded} plik(ów), ale {failed} się nie powiodło.',
   'questions.uploadFailed': 'Nie udało się przesłać {failed} plik(ów).',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

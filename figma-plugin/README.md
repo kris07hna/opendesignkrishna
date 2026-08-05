@@ -1,8 +1,8 @@
-# OD Figma Import (Figma plugin)
+# Open Design Connect (Figma plugin)
 
 Rebuilds an **OD Figma capture** — the JSON node-tree the OD Clipper produces from a live
 web page — into editable Figma layers (frames, text, images, fills, strokes, corner radii,
-shadows).
+shadows), and connects with the local Open Design daemon (`http://localhost:7456`).
 
 > ### ⚠️ You cannot open `.od-figma.json` by dragging it into Figma
 >
@@ -37,11 +37,11 @@ plugins do not work in the browser.
 3. Select this folder's **`manifest.json`**
    (this repo: `figma-plugin/manifest.json`).
 
-The plugin now appears under **Plugins → Development → OD Figma Import** in every file.
+The plugin now appears under **Plugins → Development → Open Design Connect** in every file.
 
 ## 3. Import a capture
 
-1. Run **Plugins → Development → OD Figma Import**.
+1. Run **Plugins → Development → Open Design Connect**.
 2. In the plugin window, **drop or choose** the `.od-figma.json` file — or paste the JSON.
 3. Click **Import**.
 

@@ -155,6 +155,19 @@ export const SUGGESTED_MODELS_BY_PROTOCOL: Record<ApiProtocol, readonly string[]
     'qwen3.5:397b',
     'rnj-1:8b',
   ],
+  openrouter: [
+    'google/gemini-2.5-flash',
+    'anthropic/claude-3.5-sonnet',
+    'meta-llama/llama-3-8b-instruct',
+  ],
+  cloudflare: [
+    '@cf/meta/llama-3.2-11b-vision-instruct',
+    '@cf/qwen/qwq-32b',
+    '@cf/meta/llama-3.3-70b-instruct-fp8',
+    '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b',
+    '@cf/meta/llama-3-8b-instruct',
+    '@cf/meta/llama-3.1-8b-instruct',
+  ],
 };
 
 // "Fast / cheap" model recommendation for each protocol. Used by the
@@ -175,6 +188,8 @@ export const FAST_MODEL_BY_PROTOCOL: Record<ApiProtocol, string> = {
   senseaudio: 'senseaudio-s2-flash',
   aihubmix: 'gpt-4o-mini',
   bedrock: 'amazon.nova-lite-v1:0',
+  openrouter: 'google/gemini-2.5-flash',
+  cloudflare: '@cf/meta/llama-3-8b-instruct',
 };
 
 export const API_PROTOCOL_TABS: ReadonlyArray<{
@@ -188,6 +203,8 @@ export const API_PROTOCOL_TABS: ReadonlyArray<{
   { id: 'ollama', title: 'Ollama Cloud' },
   { id: 'senseaudio', title: 'SenseAudio' },
   { id: 'aihubmix', title: 'AIHubMix' },
+  { id: 'openrouter', title: 'OpenRouter' },
+  { id: 'cloudflare', title: 'Cloudflare' },
 ];
 
 export const API_PROTOCOL_LABELS: Record<ApiProtocol, string> = {
@@ -199,6 +216,8 @@ export const API_PROTOCOL_LABELS: Record<ApiProtocol, string> = {
   senseaudio: 'SenseAudio API',
   aihubmix: 'AIHubMix API',
   bedrock: 'AWS Bedrock',
+  openrouter: 'OpenRouter API',
+  cloudflare: 'Cloudflare AI',
 };
 
 export const API_KEY_PLACEHOLDERS: Record<ApiProtocol, string> = {
@@ -210,6 +229,8 @@ export const API_KEY_PLACEHOLDERS: Record<ApiProtocol, string> = {
   senseaudio: 'SenseAudio API key',
   aihubmix: 'sk-...',
   bedrock: 'AWS credentials',
+  openrouter: 'sk-or-...',
+  cloudflare: 'Cloudflare token',
 };
 
 // Default base URL the daemon assumes when the user leaves the field
@@ -224,6 +245,8 @@ export const DEFAULT_BASE_URL_BY_PROTOCOL: Record<ApiProtocol, string> = {
   senseaudio: 'https://api.senseaudio.cn',
   aihubmix: 'https://aihubmix.com/v1',
   bedrock: 'https://bedrock-runtime.us-east-1.amazonaws.com',
+  openrouter: 'https://openrouter.ai/api/v1',
+  cloudflare: '',
 };
 
 // Fixed-origin gateways: managed single-endpoint providers where the user only

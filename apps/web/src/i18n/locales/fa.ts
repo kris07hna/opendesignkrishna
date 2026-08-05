@@ -4281,4 +4281,6 @@ export const fa: Dict = {
   'questions.uploadNeedsProject': 'بارگذاری فایل به یک پروژه فعال نیاز دارد.',
   'questions.uploadPartialFailed': '{uploaded} فایل بارگذاری شد، اما {failed} ناموفق بود.',
   'questions.uploadFailed': 'بارگذاری {failed} فایل ناموفق بود.',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

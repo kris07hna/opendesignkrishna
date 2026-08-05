@@ -4300,4 +4300,6 @@ export const en: Dict = {
   'questions.uploadNeedsProject': 'File upload needs an active project.',
   'questions.uploadPartialFailed': 'Uploaded {uploaded} file(s), but {failed} failed.',
   'questions.uploadFailed': 'File upload failed for {failed} file(s).',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://open-design.ai/schemas/plugin.v1.json",
+  "specVersion": "1.0.0",
+  "name": "example-user-flow",
+  "title": "User Flow Generator",
+  "title_i18n": {
+    "en": "User Flow Generator",
+    "zh-CN": "用户流图生成器"
+  },
+  "version": "0.1.0",
+  "publishedAt": "2026-08-02T18:00:00Z",
+  "description": "Generate visual user flow sitemaps and whiteboard sketches using an LLM-guided web agent.",
+  "description_i18n": {
+    "en": "Generate visual user flow sitemaps and whiteboard sketches using an LLM-guided web agent.",
+    "zh-CN": "使用 LLM 引导的 Web 代理生成用户流和白板草图。"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Open Design"
+  },
+  "tags": [
+    "example",
+    "first-party",
+    "web",
+    "user-flow",
+    "sitemap"
+  ],
+  "od": {
+    "kind": "scenario",
+    "taskKind": "new-generation",
+    "mode": "prototype",
+    "scenario": "user-flow",
+    "surface": "web",
+    "preview": {
+      "type": "html",
+      "entry": "./index.html"
+    },
+    "useCase": {
+      "query": {
+        "en": "Create a visual user flow whiteboard sitemap for: {{targetUrl}}. Goal: {{userGoal}}. Run the crawl_map_ai.py agent to explore the pages, capture screenshots, and lay out the whiteboard flow.",
+        "zh-CN": "为 {{targetUrl}} 创建用户流白板图。目标：{{userGoal}}。运行 user-flow 代理抓取相关页面并生成白板流。"
+      }
+    },
+    "inputs": [
+      {
+        "name": "targetUrl",
+        "label": "Website URL",
+        "type": "string",
+        "required": false,
+        "default": "https://example.com",
+        "placeholder": "https://example.com"
+      },
+      {
+        "name": "userGoal",
+        "label": "User Goal",
+        "type": "string",
+        "required": false,
+        "default": "Explore key pages and map user flow sitemap",
+        "placeholder": "e.g. Find headphones, add to cart, and view checkout"
+      }
+    ],
+    "context": {
+      "skills": [
+        {
+          "ref": "user-flow"
+        }
+      ]
+    },
+    "pipeline": {
+      "stages": [
+        {
+          "id": "generate",
+          "atoms": [
+            "file-write",
+            "live-artifact"
+          ]
+        }
+      ]
+    },
+    "capabilities": [
+      "prompt:inject",
+      "fs:write",
+      "shell"
+    ]
+  }
+}

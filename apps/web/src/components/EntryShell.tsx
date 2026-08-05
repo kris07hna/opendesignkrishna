@@ -3875,17 +3875,15 @@ export function OnboardingDropdown(props: OnboardingDropdownProps) {
   }, []);
 
   function toggleOpen() {
-    setOpen((current) => {
-      const nextOpen = !current;
-      if (nextOpen) {
-        window.dispatchEvent(
-          new CustomEvent(ONBOARDING_DROPDOWN_OPEN_EVENT, {
-            detail: dropdownIdRef.current,
-          }),
-        );
-      }
-      return nextOpen;
-    });
+    const nextOpen = !open;
+    setOpen(nextOpen);
+    if (nextOpen) {
+      window.dispatchEvent(
+        new CustomEvent(ONBOARDING_DROPDOWN_OPEN_EVENT, {
+          detail: dropdownIdRef.current,
+        }),
+      );
+    }
   }
 
   return (

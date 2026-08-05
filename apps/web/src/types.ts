@@ -116,7 +116,9 @@ export type ApiProtocol =
   | 'ollama'
   | 'senseaudio'
   | 'aihubmix'
-  | 'bedrock';
+  | 'bedrock'
+  | 'openrouter'
+  | 'cloudflare';
 
 export type LiveArtifactTabId = `live:${string}`;
 // Tab ids are arbitrary strings; the template-literal members below are

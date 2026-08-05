@@ -10,6 +10,8 @@ const API_PROTOCOL_LABELS: Record<ApiProtocol, string> = {
   senseaudio: 'SenseAudio API',
   aihubmix: 'AIHubMix API',
   bedrock: 'AWS Bedrock',
+  openrouter: 'OpenRouter API',
+  cloudflare: 'Cloudflare AI',
 };
 
 const API_PROTOCOL_AGENT_IDS: Record<ApiProtocol, string> = {
@@ -21,6 +23,8 @@ const API_PROTOCOL_AGENT_IDS: Record<ApiProtocol, string> = {
   senseaudio: 'senseaudio-api',
   aihubmix: 'aihubmix-api',
   bedrock: 'bedrock-api',
+  openrouter: 'openrouter-api',
+  cloudflare: 'cloudflare-api',
 };
 
 export function apiProtocolLabel(protocol: ApiProtocol | undefined): string {

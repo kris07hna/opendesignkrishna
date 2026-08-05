@@ -3769,6 +3769,7 @@ function ShortcutsMenu({
 function homeHeroChipDescription(chipId: string, t: ReturnType<typeof useT>): string {
   switch (chipId) {
     case 'prototype': return t('homeHero.chip.prototypeDesc');
+    case 'user-flow': return 'Visual user flow maps';
     case 'web-clone': return t('homeHero.chip.webCloneDesc');
     case 'wireframe': return t('homeHero.chip.wireframeDesc');
     case 'mobile': return t('homeHero.chip.mobileDesc');
@@ -3810,6 +3811,7 @@ function fallbackPlaceholderScenarioText(
 function homeHeroChipTitle(chip: HomeHeroChip, t: ReturnType<typeof useT>): string {
   switch (chip.id) {
     case 'prototype': return t('homeHero.chip.prototypeNext');
+    case 'user-flow': return t('homeHero.chip.userFlowNext');
     case 'web-clone': return t('homeHero.chip.webCloneNext');
     case 'wireframe': return t('homeHero.chip.wireframeNext');
     case 'mobile': return t('homeHero.chip.mobileNext');
@@ -3927,6 +3929,8 @@ export function pluginMatchesExampleChip(record: InstalledPluginRecord, chipId: 
     case 'web-clone':
       // Website reproduction flows (e.g. example-web-clone / site-clone kits).
       return has('web-clone', 'website-clone', 'site-clone') || hasPart('web-clone', 'website-clone');
+    case 'user-flow':
+      return has('user-flow', 'sitemap', 'example-user-flow') || hasPart('user-flow', 'sitemap');
     case 'wireframe':
       // Lo-fi / sketch / whiteboard explorations (e.g. wireframe-sketch).
       return (
@@ -4221,6 +4225,9 @@ const HOME_PROMPT_EXAMPLES: Record<Locale, Record<string, string[]>> = {
     "web-clone": [
       "Website URL to clone: https://open-design.ai",
     ],
+    "user-flow": [
+      "Website URL to map user flow: https://example.com",
+    ],
     prototype: [
       "Design a high-converting website for an AI CRM with a clear hero, feature story, proof points, and trial CTA",
       "Create a desktop dashboard for a team knowledge base with search, recent updates, permissions, and collaboration entry points",
@@ -4355,6 +4362,9 @@ const HOME_PROMPT_EXAMPLES: Record<Locale, Record<string, string[]>> = {
   "zh-CN": {
     "web-clone": [
       "想要复刻的网站链接：https://open-design.ai",
+    ],
+    "user-flow": [
+      "想要分析用户流图的网站链接：https://example.com",
     ],
     prototype: [
       "为 AI CRM 设计一个高转化官网，包含首屏、功能卖点、客户案例和清晰的试用入口",
@@ -4992,6 +5002,8 @@ function briefForChipId(chipId: string): Record<string, string> {
       return { artifact_type: 'web prototype', audience: 'product evaluators', fidelity: 'high-fidelity' };
     case 'web-clone':
       return { artifact_type: 'website clone', source: 'target URL', fidelity: 'source-first visual reproduction' };
+    case 'user-flow':
+      return { artifact_type: 'user flow sitemap', fidelity: 'whiteboard flow map' };
     case 'wireframe':
       return { artifact_type: 'lo-fi wireframe', audience: 'product team', fidelity: 'wireframe' };
     case 'mobile':

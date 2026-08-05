@@ -4286,4 +4286,6 @@ export const id: Dict = {
   'questions.uploadNeedsProject': 'Unggah file memerlukan proyek aktif.',
   'questions.uploadPartialFailed': '{uploaded} file terunggah, tetapi {failed} gagal.',
   'questions.uploadFailed': 'Gagal mengunggah {failed} file.',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };

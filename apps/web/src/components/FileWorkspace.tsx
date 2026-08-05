@@ -1268,6 +1268,15 @@ export function FileWorkspace({
     fileManagerViewedProjectRef.current = projectId;
     trackPageView(analytics.track, { page_name: 'file_manager' });
   }, [projectId, analytics.track]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const autoOpenProjId = window.localStorage.getItem('od_auto_open_user_flow_dialog');
+    if (autoOpenProjId === projectId) {
+      window.localStorage.removeItem('od_auto_open_user_flow_dialog');
+      setShowFlowDialog(true);
+    }
+  }, [projectId]);
   const defaultRootTab = designSystemProject ? DESIGN_SYSTEM_TAB : DESIGN_FILES_TAB;
   // Persisted tabs come from the parent. Active tab can transiently point
   // at a pending sketch — pending sketches are not in tabsState.tabs.
@@ -1348,6 +1357,7 @@ export function FileWorkspace({
   // Transient feedback when a launcher "create" action (e.g. New Terminal)
   // fails on the daemon side, so the click is never a silent no-op.
   const [launcherToast, setLauncherToast] = useState<string | null>(null);
+  const [showFlowDialog, setShowFlowDialog] = useState(false);
   const [browserSnapshotToast, setBrowserSnapshotToast] = useState<WorkspaceActionToast | null>(null);
   const [tabsOverflowing, setTabsOverflowing] = useState(false);
   const [draggedTabName, setDraggedTabName] = useState<string | null>(null);
@@ -3264,6 +3274,7 @@ export function FileWorkspace({
     // Browser is owned by this branch's DesignBrowserPanel: spin up a browser
     // tab synchronously (no daemon round-trip) and let the launcher close.
     createBrowser: () => openBrowserTab(),
+    createFlow: () => setShowFlowDialog(true),
     createSketch: () => void startNewSketch(),
     createDocument: () => void createMarkdownDocument(),
     uploadDesignFiles: () => fileInputRef.current?.click(),
@@ -3912,6 +3923,17 @@ export function FileWorkspace({
         onCreate={(presetId) => void createBlankPage(presetId)}
         onClose={() => {
           if (!pageCreating) setPageCreatorOpen(false);
+        }}
+      />
+      <UserFlowDialog
+        open={showFlowDialog}
+        projectId={projectId}
+        onClose={() => setShowFlowDialog(false)}
+        onSuccess={async (sketchPath) => {
+          setShowFlowDialog(false);
+          await onRefreshFiles();
+          await refreshProjectFolders();
+          openFile(sketchPath, { forcePersist: true });
         }}
       />
       <input
@@ -7896,3 +7918,541 @@ function isLiveArtifactImplementationPath(name: string): boolean {
   // if a generic project-files endpoint returns them in older daemon builds.
   return true;
 }
+
+function UserFlowDialog({
+  open,
+  projectId,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean;
+  projectId: string;
+  onClose: () => void;
+  onSuccess: (sketchPath: string) => void;
+}) {
+  const [url, setUrl]           = useState('');
+  const [goal, setGoal]         = useState('');
+  const [maxDepth, setMaxDepth] = useState(1);
+  const [phase, setPhase]       = useState<'form' | 'crawling' | 'done' | 'error'>('form');
+  const [logs, setLogs]         = useState<string[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [sketchPath, setSketchPath] = useState<string | null>(null);
+  const logsEndRef = useRef<HTMLDivElement>(null);
+  const evsRef     = useRef<EventSource | null>(null);
+
+  // Auto-scroll log container
+  useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
+  // Cleanup SSE on unmount / close
+  useEffect(() => {
+    return () => {
+      evsRef.current?.close();
+    };
+  }, []);
+
+  function resetState() {
+    evsRef.current?.close();
+    evsRef.current = null;
+    setPhase('form');
+    setLogs([]);
+    setErrorMsg(null);
+    setSketchPath(null);
+  }
+
+  function handleClose() {
+    if (phase === 'crawling') return;
+    resetState();
+    onClose();
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url.trim() || !goal.trim()) return;
+
+    setPhase('crawling');
+    setLogs([]);
+    setErrorMsg(null);
+
+    try {
+      // Use fetch+ReadableStream to POST then receive SSE (EventSource only
+      // supports GET; for POST SSE we read the response body as a stream).
+      const fetchResp = await fetch(
+        `/api/projects/${encodeURIComponent(projectId)}/user-flows/crawl`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url.trim(), goal: goal.trim(), maxDepth }),
+        }
+      );
+
+      if (!fetchResp.ok || !fetchResp.body) {
+        const errData = await fetchResp.json().catch(() => ({}));
+        throw new Error(errData.message || `Server responded ${fetchResp.status}`);
+      }
+
+      const reader = fetchResp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      const processBuffer = () => {
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() ?? '';
+        for (const block of parts) {
+          let eventType = 'message';
+          let dataStr   = '';
+          for (const line of block.split('\n')) {
+            if (line.startsWith('event:')) eventType = line.slice(6).trim();
+            if (line.startsWith('data:'))  dataStr   = line.slice(5).trim();
+          }
+          if (!dataStr) continue;
+          try {
+            const payload = JSON.parse(dataStr);
+            if (eventType === 'log') {
+              setLogs(prev => [...prev, payload.line ?? '']);
+            } else if (eventType === 'start') {
+              setLogs(prev => [...prev, `Starting crawl of ${payload.url} (depth ${payload.maxDepth})...`]);
+            } else if (eventType === 'done') {
+              setSketchPath(payload.sketchPath);
+              setPhase('done');
+            } else if (eventType === 'error') {
+              setErrorMsg(`${payload.message}${payload.detail ? `\n\n${payload.detail}` : ''}`);
+              setPhase('error');
+            }
+          } catch {
+            // ignore malformed SSE frames (e.g. heartbeat pings)
+          }
+        }
+      };
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        processBuffer();
+      }
+
+      // If stream ended without a done/error event
+      if (phase === 'crawling') {
+        setErrorMsg('Stream ended unexpectedly. Check daemon logs.');
+        setPhase('error');
+      }
+
+    } catch (err: any) {
+      setErrorMsg(err.message ?? 'Unexpected error starting crawl.');
+      setPhase('error');
+    }
+  };
+
+  if (!open) return null;
+
+  // ---- Render ----------------------------------------------------------------
+  const STEP_LABELS = ['Configure', 'Crawling', 'Whiteboard Ready'];
+  const stepIdx = phase === 'form' ? 0 : phase === 'crawling' ? 1 : 2;
+
+  return createPortal(
+    <div
+      className="page-creator-backdrop"
+      role="presentation"
+      onMouseDown={() => handleClose()}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label="Generate User Flow Diagram"
+        onMouseDown={(e) => e.stopPropagation()}
+        style={{
+          width: '560px',
+          maxHeight: '88vh',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: '14px',
+          background: 'var(--bg-panel, #1e293b)',
+          border: '1px solid var(--border, #334155)',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* ---- Header ---- */}
+        <div style={{
+          padding: '20px 24px 0',
+          borderBottom: '1px solid var(--border, #334155)',
+          paddingBottom: '16px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div>
+              <span style={{
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'var(--fg-muted, #64748b)',
+                display: 'block',
+                marginBottom: '4px',
+              }}>
+                AI User Flow Mapper
+              </span>
+              <h2 style={{ fontSize: '17px', fontWeight: 600, margin: 0, lineHeight: 1.3 }}>
+                Generate Visual User Flow
+              </h2>
+            </div>
+            {phase !== 'crawling' && (
+              <button
+                type="button"
+                onClick={handleClose}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--fg-muted, #64748b)', fontSize: '18px',
+                  padding: '0 2px', lineHeight: 1, marginTop: '2px',
+                }}
+                aria-label="Close"
+              >
+                x
+              </button>
+            )}
+          </div>
+
+          {/* Step indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '16px' }}>
+            {STEP_LABELS.map((label, i) => (
+              <div key={label} style={{ display: 'contents' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{
+                    width: '20px', height: '20px', borderRadius: '50%',
+                    background: i < stepIdx ? 'var(--primary, #3b82f6)'
+                      : i === stepIdx ? 'var(--primary, #3b82f6)'
+                      : 'var(--bg-input, #0f172a)',
+                    border: i <= stepIdx ? '2px solid var(--primary, #3b82f6)'
+                      : '2px solid var(--border, #334155)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '10px', fontWeight: 700,
+                    color: i <= stepIdx ? '#fff' : 'var(--fg-muted, #64748b)',
+                    flexShrink: 0,
+                    transition: 'all 0.2s',
+                  }}>
+                    {i < stepIdx ? 'V' : i + 1}
+                  </div>
+                  <span style={{
+                    fontSize: '11px',
+                    color: i === stepIdx ? 'var(--fg, #f8fafc)'
+                      : i < stepIdx ? 'var(--fg-muted, #64748b)'
+                      : 'var(--fg-muted, #64748b)',
+                    fontWeight: i === stepIdx ? 600 : 400,
+                  }}>
+                    {label}
+                  </span>
+                </div>
+                {i < STEP_LABELS.length - 1 && (
+                  <div style={{
+                    flex: 1, height: '1px',
+                    background: i < stepIdx ? 'var(--primary, #3b82f6)' : 'var(--border, #334155)',
+                    transition: 'background 0.3s',
+                  }} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ---- Body ---- */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+
+          {/* Form phase */}
+          {phase === 'form' && (
+            <form id="user-flow-form" onSubmit={handleSubmit}
+              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--fg-muted, #94a3b8)', lineHeight: 1.5 }}>
+                Enter a website URL and describe what the user is trying to accomplish.
+                Playwright will navigate the site, capture screenshots, and lay out an
+                interactive Excalidraw whiteboard automatically.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--fg, #f8fafc)' }}>
+                  Website URL
+                </label>
+                <input
+                  id="uf-url"
+                  type="url"
+                  required
+                  placeholder="https://amazon.in"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  style={{
+                    boxSizing: 'border-box',
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: '7px',
+                    border: '1px solid var(--border, #334155)',
+                    background: 'var(--bg-input, #0f172a)',
+                    color: 'inherit',
+                    fontSize: '13px',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--fg, #f8fafc)' }}>
+                  User Goal
+                </label>
+                <textarea
+                  id="uf-goal"
+                  required
+                  rows={3}
+                  placeholder="e.g. Find Sony WH-1000XM5 headphones, add to cart, and view checkout"
+                  value={goal}
+                  onChange={(e) => setGoal(e.target.value)}
+                  style={{
+                    boxSizing: 'border-box',
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: '7px',
+                    border: '1px solid var(--border, #334155)',
+                    background: 'var(--bg-input, #0f172a)',
+                    color: 'inherit',
+                    fontSize: '13px',
+                    outline: 'none',
+                    resize: 'vertical',
+                    fontFamily: 'inherit',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--fg, #f8fafc)' }}>
+                  Crawl Depth
+                  <span style={{ fontWeight: 400, color: 'var(--fg-muted, #64748b)', marginLeft: '6px' }}>
+                    (how many link levels to follow)
+                  </span>
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[1, 2, 3].map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setMaxDepth(d)}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: '6px',
+                        border: `1px solid ${maxDepth === d ? 'var(--primary, #3b82f6)' : 'var(--border, #334155)'}`,
+                        background: maxDepth === d ? 'rgba(59,130,246,0.15)' : 'var(--bg-input, #0f172a)',
+                        color: maxDepth === d ? 'var(--primary, #3b82f6)' : 'var(--fg-muted, #94a3b8)',
+                        fontSize: '13px',
+                        fontWeight: maxDepth === d ? 600 : 400,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {d === 1 ? '1 - Shallow' : d === 2 ? '2 - Standard' : '3 - Deep'}
+                    </button>
+                  ))}
+                </div>
+                <span style={{ fontSize: '11px', color: 'var(--fg-muted, #64748b)' }}>
+                  {maxDepth === 1 ? 'Only the starting page and its direct links.'
+                    : maxDepth === 2 ? 'Starting page, its links, and one more level.'
+                    : 'Three levels deep. May take several minutes.'}
+                </span>
+              </div>
+            </form>
+          )}
+
+          {/* Crawling phase */}
+          {phase === 'crawling' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '20px', height: '20px', borderRadius: '50%',
+                  border: '2px solid var(--primary, #3b82f6)',
+                  borderTopColor: 'transparent',
+                  animation: 'uf-spin 0.7s linear infinite',
+                  flexShrink: 0,
+                }} />
+                <span style={{ fontSize: '13px', fontWeight: 500 }}>
+                  Crawling {url}...
+                </span>
+              </div>
+
+              <div style={{
+                background: 'var(--bg-input, #0f172a)',
+                border: '1px solid var(--border, #334155)',
+                borderRadius: '8px',
+                padding: '12px',
+                maxHeight: '280px',
+                overflowY: 'auto',
+                fontFamily: 'monospace',
+                fontSize: '11px',
+                color: 'var(--fg-muted, #94a3b8)',
+                lineHeight: 1.6,
+              }}>
+                {logs.length === 0
+                  ? <span style={{ opacity: 0.5 }}>Waiting for output...</span>
+                  : logs.map((line, i) => {
+                      const isStep = line.startsWith('[');
+                      return (
+                        <div key={i} style={{
+                          color: line.includes('ERROR') ? '#ef4444'
+                            : line.includes('WARN') ? '#f59e0b'
+                            : line.includes('DONE') || line.includes('COMPLETE') ? '#22c55e'
+                            : line.includes('AUTH') ? '#f59e0b'
+                            : isStep ? 'var(--fg, #f8fafc)' : 'var(--fg-muted, #94a3b8)',
+                          marginBottom: '1px',
+                        }}>
+                          {line}
+                        </div>
+                      );
+                    })}
+                <div ref={logsEndRef} />
+              </div>
+            </div>
+          )}
+
+          {/* Done phase */}
+          {phase === 'done' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', textAlign: 'center', padding: '8px 0' }}>
+              <div style={{
+                width: '52px', height: '52px', borderRadius: '50%',
+                background: 'rgba(34,197,94,0.15)',
+                border: '2px solid #22c55e',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '22px',
+              }}>
+                V
+              </div>
+              <div>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: '15px' }}>Whiteboard Ready</p>
+                <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'var(--fg-muted, #94a3b8)' }}>
+                  Your user flow diagram has been generated and saved to the project.
+                </p>
+              </div>
+              <div style={{
+                background: 'var(--bg-input, #0f172a)',
+                border: '1px solid var(--border, #334155)',
+                borderRadius: '8px',
+                padding: '12px',
+                maxHeight: '180px',
+                overflowY: 'auto',
+                fontFamily: 'monospace',
+                fontSize: '10px',
+                color: 'var(--fg-muted, #94a3b8)',
+                width: '100%',
+                textAlign: 'left',
+                boxSizing: 'border-box',
+              }}>
+                {logs.slice(-12).map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Error phase */}
+          {phase === 'error' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{
+                padding: '14px',
+                borderRadius: '8px',
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid #ef4444',
+                fontSize: '13px',
+                color: '#ef4444',
+                whiteSpace: 'pre-wrap',
+              }}>
+                {errorMsg ?? 'An unknown error occurred.'}
+              </div>
+              <p style={{ margin: 0, fontSize: '12px', color: 'var(--fg-muted, #94a3b8)' }}>
+                Common fixes: ensure Python and Playwright are installed (run{' '}
+                <code style={{ fontSize: '11px', background: 'var(--bg-input, #0f172a)', padding: '1px 4px', borderRadius: '3px' }}>
+                  pnpm bootstrap
+                </code>
+                ), and that the daemon can reach the target URL.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* ---- Footer ---- */}
+        <div style={{
+          padding: '14px 24px',
+          borderTop: '1px solid var(--border, #334155)',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: '10px',
+        }}>
+          {(phase === 'form' || phase === 'error') && (
+            <>
+              <button
+                type="button"
+                onClick={handleClose}
+                style={{
+                  padding: '8px 16px', borderRadius: '7px',
+                  border: '1px solid var(--border, #334155)',
+                  background: 'transparent', color: 'inherit',
+                  cursor: 'pointer', fontSize: '13px',
+                }}
+              >
+                Cancel
+              </button>
+              {phase === 'error' && (
+                <button
+                  type="button"
+                  onClick={() => { setPhase('form'); setErrorMsg(null); }}
+                  style={{
+                    padding: '8px 16px', borderRadius: '7px',
+                    border: '1px solid var(--border, #334155)',
+                    background: 'transparent', color: 'var(--primary, #3b82f6)',
+                    cursor: 'pointer', fontSize: '13px',
+                  }}
+                >
+                  Try Again
+                </button>
+              )}
+              {phase === 'form' && (
+                <button
+                  type="submit"
+                  form="user-flow-form"
+                  style={{
+                    padding: '8px 20px', borderRadius: '7px',
+                    border: 'none',
+                    background: 'var(--primary, #3b82f6)', color: '#fff',
+                    cursor: 'pointer', fontSize: '13px', fontWeight: 600,
+                  }}
+                >
+                  Generate Flow
+                </button>
+              )}
+            </>
+          )}
+          {phase === 'done' && sketchPath && (
+            <button
+              type="button"
+              onClick={() => {
+                onSuccess(sketchPath);
+                resetState();
+              }}
+              style={{
+                padding: '8px 20px', borderRadius: '7px',
+                border: 'none',
+                background: '#22c55e', color: '#fff',
+                cursor: 'pointer', fontSize: '13px', fontWeight: 600,
+              }}
+            >
+              Open Whiteboard
+            </button>
+          )}
+        </div>
+      </section>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes uf-spin { to { transform: rotate(360deg); } }
+        @keyframes page-creator-in {
+          from { opacity: 0; transform: scale(0.96) translateY(6px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}} />
+    </div>,
+    document.body,
+  );
+}
+

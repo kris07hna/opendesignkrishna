@@ -4286,4 +4286,6 @@ export const de: Dict = {
   'questions.uploadNeedsProject': 'Zum Hochladen von Dateien wird ein aktives Projekt benötigt.',
   'questions.uploadPartialFailed': '{uploaded} Datei(en) hochgeladen, {failed} fehlgeschlagen.',
   'questions.uploadFailed': 'Hochladen von {failed} Datei(en) fehlgeschlagen.',
+  'homeHero.chip.userFlowPromptSeed': 'Website URL to map user flow: ',
+  'homeHero.chip.userFlowNext': 'Open a chat that runs a crawling agent, captures screenshots, and designs a user flow whiteboard.',
 };
