@@ -88,41 +88,30 @@ jobs:
           
           echo "Running full OpenDesign advanced CLI extraction..."
           
-          # Run the crawler via the daemon CLI
+          # Run the crawler without --json so full output and progress lines are printed in real-time
           node /app/apps/daemon/dist/cli.js user-flow \
             --url "${{ inputs.url }}" \
             --goal "${{ inputs.goal }}" \
-            --project "$PROJECT_ID" \
-            --json | tee output.json
-            
-          echo "Crawler Output:"
-          cat output.json
+            --project "$PROJECT_ID" 2>&1 | tee run.log
 
       - name: Extract Artifacts Path
         id: parse_output
         run: |
           set +e
-          # Parse the json output to find where the sitemap/sketch was saved
-          SKETCH_PATH=$(grep -o '"sketchPath":"[^"]*' output.json 2>/dev/null | grep -o '[^"]*$')
-          SITEMAP_PATH=$(grep -o '"sitemapPath":"[^"]*' output.json 2>/dev/null | grep -o '[^"]*$')
-          
           mkdir -p artifacts
           
-          # Also copy any screenshots the crawler produced
+          # Copy any screenshots or flow maps generated in /app
           if [ -d "/app/screenshots_ai" ]; then
             cp -r /app/screenshots_ai/* artifacts/ 2>/dev/null || true
           fi
           
-          if [ ! -z "$SKETCH_PATH" ] && [ -f "$SKETCH_PATH" ]; then
-            cp "$SKETCH_PATH" artifacts/
-          fi
-          if [ ! -z "$SITEMAP_PATH" ] && [ -f "$SITEMAP_PATH" ]; then
-            cp "$SITEMAP_PATH" artifacts/
-          fi
-          
+          # Find any .json or .sketch.json files in projects directory or root
+          find /app -name "*.sketch.json" -exec cp {} artifacts/ \; 2>/dev/null || true
+          find /app -name "sitemap_ai.json" -exec cp {} artifacts/ \; 2>/dev/null || true
+
           # List what we collected
           echo "Collected artifacts:"
-          ls -la artifacts/ 2>/dev/null || echo "(none)"
+          ls -la artifacts/
 
       - name: Upload Output Artifacts
         if: always()
