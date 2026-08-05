@@ -186,8 +186,8 @@ function handleStreamCrawl(
 
     if (!exitedClean) return; // already handled above or intentionally killed
 
-    const sitemapPath = path.join(outputDir, 'sitemap_ai.json');
-    const sketchPath  = path.join(outputDir, 'sitemap_flow.sketch.json');
+    const sitemapPath = path.join(outputDir, 'sitemap.json');
+    const sketchPath  = path.join(outputDir, 'userflow.sketch.json');
 
     if (!fs.existsSync(sketchPath)) {
       sendEvent('error', {
@@ -201,8 +201,8 @@ function handleStreamCrawl(
 
     sendEvent('done', {
       message: 'User flow whiteboard generated successfully.',
-      sitemapPath: 'screenshots_ai/sitemap_ai.json',
-      sketchPath:  'screenshots_ai/sitemap_flow.sketch.json',
+      sitemapPath: 'screenshots_ai/sitemap.json',
+      sketchPath:  'screenshots_ai/userflow.sketch.json',
       absoluteSketchPath: sketchPath,
     });
     crawlDone = true;

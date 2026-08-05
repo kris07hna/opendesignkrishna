@@ -107,7 +107,7 @@ jobs:
           
           # Find any .json or .sketch.json files in projects directory or root
           find /app -name "*.sketch.json" -exec cp {} artifacts/ \; 2>/dev/null || true
-          find /app -name "sitemap_ai.json" -exec cp {} artifacts/ \; 2>/dev/null || true
+          find /app -name "sitemap*.json" -exec cp {} artifacts/ \; 2>/dev/null || true
 
           # List what we collected
           echo "Collected artifacts:"
