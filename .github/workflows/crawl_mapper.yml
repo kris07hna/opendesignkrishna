@@ -1,5 +1,14 @@
-name: AI Website Crawler & Flow Mapper
+name: Enterprise Web Flow & UX Mapper
 
+# ---------------------------------------------------------
+# Note: You can also run these professional features locally
+# using the OpenDesign CLI:
+#   od user-flow --url <URL> --goal <GOAL> --project <ID> --model opencode/deepseek-v4-flash-free
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# Define when this workflow can be triggered (manually via GitHub UI)
+# ---------------------------------------------------------
 on:
   workflow_dispatch:
     inputs:
@@ -8,7 +17,7 @@ on:
         required: true
         type: string
       goal:
-        description: 'Navigation goal / what to map (e.g. "Map all sections")'
+        description: 'Navigation goal / what to map (e.g. "Order a brand bag" or "Map all sections")'
         required: true
         type: string
       viewport:
@@ -25,10 +34,24 @@ on:
         required: false
         default: true
         type: boolean
+      mode:
+        description: 'Crawler Mode'
+        required: true
+        default: 'ux-ia'
+        type: choice
+        options:
+          - 'flow'
+          - 'spider'
+          - 'ux-ia'
+      max_steps:
+        description: 'Maximum number of steps/clicks the AI can perform per viewport'
+        required: false
+        default: '10'
+        type: string
       model:
         description: 'OpenCode model to use'
         required: true
-        default: 'opencode/deepseek-v4-flash'
+        default: 'opencode/deepseek-v4-flash-free'
         type: string
 
 jobs:
@@ -36,45 +59,61 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # Step 1: Checkout the source code from the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
+      # Step 2: Set up the Python environment (version 3.12)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
+      # Step 3: Set up Node.js to allow installation of the OpenCode AI CLI
       - name: Set up Node.js (for OpenCode CLI)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      # Step 4: Install Linux system dependencies required by Playwright (headless browser)
       - name: Install System Dependencies for Playwright
         run: |
           sudo apt-get update
           sudo apt-get install -y libgbm-dev
 
+      # Step 5: Install Python libraries (playwright for browser automation, nest_asyncio for async)
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          # Ensure playwright and other standard libraries used in your script are installed
           pip install playwright nest_asyncio
 
+      # Step 6: Download the actual headless Chromium browser binary
       - name: Install Playwright Browsers
         run: |
           playwright install --with-deps chromium
 
+      # Step 7: Install the global npm package for the OpenCode AI engine
       - name: Install OpenCode CLI
         run: |
           npm install -g opencode-ai
 
-      - name: Run AI Website Crawler
+      # Step 8: Execute the crawler using the AI-driven dynamic Playwright extractor
+      - name: Dynamic AI Playwright Extractor (ux-ia)
+        env:
+          PYTHONUNBUFFERED: "1"
+        working-directory: opendesign-crawler-repo
         run: |
+          echo "💡 Tip: You can run this same flow locally using the OpenDesign CLI!"
+          echo "Run: od user-flow --url '${{ inputs.url }}' --goal '${{ inputs.goal }}' --project <project_id> --model '${{ inputs.model }}'"
+          
           # Build dynamic flags based on workflow inputs
           VIEWPORT_FLAG=""
           if [ "${{ inputs.viewport }}" == "desktop-only" ]; then
             VIEWPORT_FLAG="--desktop-only"
-          elif [ "${{ inputs.viewport }}" == "mobile-only" ]; then
+          fi
+          if [ "${{ inputs.viewport }}" == "mobile-only" ]; then
             VIEWPORT_FLAG="--mobile-only"
           fi
           
@@ -83,17 +122,20 @@ jobs:
             FULLPAGE_FLAG="--full-page"
           fi
           
-          # Run the crawler
-          python crawl_map_ai.py \
+          # Run the modular enterprise crawler
+          python -u crawl_map_ai.py \
             --url "${{ inputs.url }}" \
             --goal "${{ inputs.goal }}" \
+            --mode "${{ inputs.mode }}" \
             --model "${{ inputs.model }}" \
+            --max-steps "${{ inputs.max_steps }}" \
             --output-dir "screenshots_ai_output" \
             $VIEWPORT_FLAG $FULLPAGE_FLAG
 
+      # Step 9: Zip the screenshots and sitemap.json and upload them to the GitHub UI for download
       - name: Upload Output Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: AI-User-Flow-Map
-          path: screenshots_ai_output/
+          name: Enterprise-UX-Flow-Map
+          path: opendesign-crawler-repo/screenshots_ai_output/
           retention-days: 7

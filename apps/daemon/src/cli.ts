@@ -296,6 +296,12 @@ const BRAND_STRING_FLAGS = new Set([
 const BRAND_BOOLEAN_FLAGS = new Set([
   'help', 'h', 'json',
 ]);
+const USER_FLOW_STRING_FLAGS = new Set([
+  'daemon-url', 'url', 'goal', 'max-depth', 'project',
+]);
+const USER_FLOW_BOOLEAN_FLAGS = new Set([
+  'help', 'h', 'json',
+]);
 // Hoisted because `runAutomation` is reachable through the top-of-file
 // SUBCOMMAND_MAP dispatch, which runs during module evaluation —
 // any `const` declared further down would still be in TDZ when
@@ -342,6 +348,7 @@ const SUBCOMMAND_MAP = {
   share: runShare,
   brand: runBrand,
   brands: runBrand,
+  'user-flow': runUserFlow,
   project: runProject,
   automation: runAutomation,
   automations: runAutomation,
@@ -2028,6 +2035,103 @@ Exit codes:
     process.exit(2);
   }
   process.exit(result.ok ? 0 : 4);
+}
+
+async function runUserFlow(rest) {
+  const flags = parseFlags(rest, {
+    string: USER_FLOW_STRING_FLAGS,
+    boolean: USER_FLOW_BOOLEAN_FLAGS,
+  });
+
+  if (flags.help || flags.h) {
+    console.log(`Usage:
+  od user-flow --url <URL> --goal <GOAL> [--project <ID>] [--max-depth <N>] [--json]
+
+Run the Playwright + Crawl AI agent to explore a target website, capture screenshots,
+and generate an Excalidraw user flow whiteboard diagram.
+
+Options:
+  --url <URL>        Website URL to start crawling (required)
+  --goal <GOAL>      User goal/task to execute (required)
+  --project <ID>     Project ID to attach the generated whiteboard to
+  --max-depth <N>    Maximum interactive step depth (default 1)
+  --json             Print JSON formatted response
+  --daemon-url <URL> Override daemon base URL
+`);
+    return;
+  }
+
+  const url = flags.url;
+  const goal = flags.goal;
+  const maxDepth = Number(flags['max-depth'] || 1);
+  const projectId = flags.project || 'default';
+
+  if (!url || !goal) {
+    console.error('Error: --url and --goal parameters are required.');
+    process.exit(1);
+  }
+
+  const baseUrl = resolveDaemonUrl(flags['daemon-url']);
+  const endpoint = `${baseUrl}/api/projects/${encodeURIComponent(projectId)}/user-flows/crawl`;
+
+  if (flags.json) {
+    console.log(JSON.stringify({ status: 'crawling', url, goal, maxDepth, projectId }));
+  } else {
+    console.log(`[UserFlow] Initiating crawl for ${url}`);
+    console.log(`[UserFlow] Goal: ${goal}`);
+  }
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, goal, maxDepth }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`Crawl failed: HTTP ${res.status} - ${errText}`);
+      process.exit(1);
+    }
+
+    if (!res.body) {
+      console.error('No response body returned from daemon');
+      process.exit(1);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('data:')) {
+          const dataStr = trimmed.slice(5).trim();
+          try {
+            const data = JSON.parse(dataStr);
+            if (data.line && !flags.json) {
+              console.log(data.line);
+            } else if (data.sketchPath) {
+              if (flags.json) {
+                console.log(JSON.stringify(data));
+              } else {
+                console.log(`\n[UserFlow] Whiteboard created: ${data.sketchPath}`);
+              }
+            }
+          } catch {}
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to communicate with daemon:', err);
+    process.exit(1);
+  }
 }
 
 // Phase 4 / spec §14 / plan §3.X1 — `od plugin pack <folder>`.
@@ -10352,3 +10456,5 @@ Options:
   const url = data?.url ?? data?.deploymentUrl ?? '';
   console.log(`[deploy] ${data?.id ?? 'done'}${url ? ` → ${url}` : ''}`);
 }
+
+
