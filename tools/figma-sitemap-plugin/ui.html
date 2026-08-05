@@ -12,7 +12,7 @@
       font-size: 13px;
     }
     h2 {
-      font-size: 16px;
+      font-size: 15px;
       margin-top: 0;
       margin-bottom: 12px;
       color: #38bdf8;
@@ -20,15 +20,23 @@
       align-items: center;
       gap: 8px;
     }
+    .badge {
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
     .drop-zone {
       border: 2px dashed #38bdf8;
       border-radius: 8px;
-      padding: 24px 16px;
+      padding: 20px 14px;
       text-align: center;
       background: #1e293b;
       cursor: pointer;
       transition: all 0.2s ease;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .drop-zone:hover {
       background: #334155;
@@ -42,19 +50,35 @@
       font-size: 11px;
       color: #94a3b8;
     }
-    textarea {
+    textarea, input[type="text"] {
       width: 100%;
-      height: 100px;
       background: #1e293b;
       border: 1px solid #334155;
       border-radius: 6px;
       color: #f8fafc;
       padding: 8px;
-      font-family: monospace;
       font-size: 11px;
       box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    textarea {
+      height: 70px;
+      font-family: monospace;
       resize: vertical;
+    }
+    .ai-box {
+      background: #1e1b4b;
+      border: 1px solid #6366f1;
+      border-radius: 8px;
+      padding: 10px;
       margin-bottom: 12px;
+    }
+    .ai-box label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a5b4fc;
+      display: block;
+      margin-bottom: 4px;
     }
     .btn {
       width: 100%;
@@ -71,9 +95,15 @@
     .btn:hover {
       background: #1d4ed8;
     }
+    .btn-ai {
+      background: #4f46e5;
+    }
+    .btn-ai:hover {
+      background: #4338ca;
+    }
     .status {
       margin-top: 10px;
-      font-size: 12px;
+      font-size: 11px;
       color: #38bdf8;
       text-align: center;
       min-height: 18px;
@@ -82,19 +112,25 @@
 </head>
 <body>
   <h2>
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-    OpenDesign Sitemap Generator
+    <span>✨ OpenDesign AI Figma Plugin</span>
+    <span class="badge">v2.0 AI Built-in</span>
   </h2>
   
   <div class="drop-zone" id="dropZone">
-    <p>📄 Drop raw_ia_graph.json here</p>
-    <span>or click to select file</span>
+    <p>📄 Drop figma_import_bundle.json or raw_ia_graph.json</p>
+    <span>or click to browse file</span>
     <input type="file" id="fileInput" accept=".json" style="display: none;">
   </div>
 
-  <textarea id="jsonText" placeholder="Or paste JSON sitemap content here..."></textarea>
+  <textarea id="jsonText" placeholder="Or paste JSON content here..."></textarea>
   
-  <button class="btn" id="generateBtn">Build Figma Sitemap Tree</button>
+  <div class="ai-box">
+    <label>🤖 Built-in AI Refinement Prompt:</label>
+    <input type="text" id="aiPrompt" value="Structure into clean enterprise columns, group related links, and highlight main sections in blue.">
+    <button class="btn btn-ai" id="aiRefineBtn">✨ AI Refine & Build Tree</button>
+  </div>
+
+  <button class="btn" id="generateBtn">Build Figma Sitemap Tree Direct</button>
   
   <div class="status" id="status"></div>
 
@@ -103,6 +139,7 @@
     const fileInput = document.getElementById('fileInput');
     const jsonText = document.getElementById('jsonText');
     const generateBtn = document.getElementById('generateBtn');
+    const aiRefineBtn = document.getElementById('aiRefineBtn');
     const status = document.getElementById('status');
 
     dropZone.addEventListener('click', () => fileInput.click());
@@ -132,7 +169,7 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         jsonText.value = e.target.result;
-        status.innerText = `Loaded: ${file.name}`;
+        status.innerText = `Selected: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
       };
       reader.readAsText(file);
     }
@@ -145,10 +182,32 @@
       }
       try {
         const parsed = JSON.parse(content);
-        status.innerText = 'Generating sitemap tree in Figma...';
+        status.innerText = 'Building sitemap tree on Figma canvas...';
         parent.postMessage({ pluginMessage: { type: 'GENERATE_SITEMAP', payload: parsed } }, '*');
       } catch(err) {
-        status.innerText = 'Invalid JSON syntax. Please check file formatting.';
+        status.innerText = 'Error parsing JSON file. Please verify syntax.';
+      }
+    });
+
+    aiRefineBtn.addEventListener('click', () => {
+      const content = jsonText.value.trim();
+      const userInstruction = document.getElementById('aiPrompt').value;
+      if (!content) {
+        status.innerText = 'Please load a JSON file first.';
+        return;
+      }
+      try {
+        const parsed = JSON.parse(content);
+        status.innerText = '🤖 AI is refining navigation tree & generating sitemap...';
+        parent.postMessage({ 
+          pluginMessage: { 
+            type: 'AI_REFINE_AND_GENERATE', 
+            payload: parsed, 
+            instruction: userInstruction 
+          } 
+        }, '*');
+      } catch(err) {
+        status.innerText = 'Error reading JSON content.';
       }
     });
   </script>

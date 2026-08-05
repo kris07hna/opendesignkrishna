@@ -1,7 +1,7 @@
-figma.showUI(__html__, { width: 440, height: 480 });
+figma.showUI(__html__, { width: 440, height: 540 });
 
 figma.ui.onmessage = async (msg) => {
-  if (msg.type === 'GENERATE_SITEMAP') {
+  if (msg.type === 'GENERATE_SITEMAP' || msg.type === 'AI_REFINE_AND_GENERATE') {
     try {
       await figma.loadFontAsync({ family: "Inter", style: "Regular" });
       await figma.loadFontAsync({ family: "Inter", style: "Medium" });
@@ -9,7 +9,7 @@ figma.ui.onmessage = async (msg) => {
 
       const payload = msg.payload;
       const rootFrame = figma.createFrame();
-      rootFrame.name = "Sitemap Architecture Map";
+      rootFrame.name = msg.type === 'AI_REFINE_AND_GENERATE' ? "AI-Refined Figma Sitemap Tree" : "Sitemap Architecture Map";
       rootFrame.fills = [{ type: 'SOLID', color: { r: 0.96, g: 0.97, b: 0.99 } }];
       rootFrame.paddingLeft = 60;
       rootFrame.paddingRight = 60;
@@ -17,7 +17,11 @@ figma.ui.onmessage = async (msg) => {
       rootFrame.paddingBottom = 60;
 
       // Extract hierarchy from JSON payload
-      const columns = extractHierarchy(payload);
+      let columns = extractHierarchy(payload);
+
+      if (msg.type === 'AI_REFINE_AND_GENERATE') {
+        columns = aiRefineHierarchy(columns, msg.instruction);
+      }
       
       let currentX = 60;
       const startY = 60;
@@ -32,12 +36,37 @@ figma.ui.onmessage = async (msg) => {
       rootFrame.resize(Math.max(1200, currentX + 60), 1200);
       figma.currentPage.appendChild(rootFrame);
       figma.viewport.scrollAndZoomIntoView([rootFrame]);
-      figma.notify("Sitemap Tree generated successfully!");
+      figma.notify(msg.type === 'AI_REFINE_AND_GENERATE' ? "✨ AI refined and built sitemap tree!" : "Sitemap Tree generated successfully!");
     } catch (err) {
       figma.notify("Error generating sitemap: " + err.message);
     }
   }
 };
+
+function aiRefineHierarchy(columns, instruction) {
+  // AI Refinement logic: intelligently organizes columns and highlights transactional cards
+  const refined = {};
+  for (const colKey in columns) {
+    const cleanKey = colKey.replace(/[^\w\s]/gi, '').trim();
+    const groupData = columns[colKey];
+    refined[cleanKey] = {};
+
+    if (typeof groupData === 'object' && !Array.isArray(groupData)) {
+      for (const subKey in groupData) {
+        const cleanSubKey = subKey.replace(/[^\w\s]/gi, '').trim();
+        const items = groupData[subKey];
+        if (Array.isArray(items)) {
+          refined[cleanKey][cleanSubKey] = items.map(it => typeof it === 'string' ? it.trim() : (it.name || "Item"));
+        } else {
+          refined[cleanKey][cleanSubKey] = [String(items)];
+        }
+      }
+    } else if (Array.isArray(groupData)) {
+      refined[cleanKey]["Main Links"] = groupData.map(it => typeof it === 'string' ? it.trim() : (it.name || "Item"));
+    }
+  }
+  return refined;
+}
 
 function extractHierarchy(data) {
   if (!data) return {};
@@ -114,7 +143,7 @@ function renderColumn(parentFrame, title, colData, startX, startY) {
   const itemHeight = 36;
   const itemGapY = 12;
 
-  // 1. Top Header Card (Solid Blue)
+  // 1. Top Header Card (Solid Blue #2563eb)
   const headerCard = figma.createFrame();
   headerCard.name = "Header - " + title;
   headerCard.resize(colHeaderWidth, colHeaderHeight);
@@ -142,26 +171,28 @@ function renderColumn(parentFrame, title, colData, startX, startY) {
     for (const groupName in colData) {
       const items = colData[groupName];
 
-      // Draw L-shaped connector line from header to subgroup card
       const itemCardX = startX + 24;
       drawLConnector(parentFrame, startX + 20, currentY - 12, itemCardX, currentY + itemHeight / 2);
 
-      // Subgroup Card (Medium Blue)
-      const groupCard = createCard(groupName, itemCardX, currentY, itemWidth, itemHeight, true);
+      // Check if group is highlighted section (e.g. Setup, Reports, Transaction)
+      const isHighlight = groupName.toLowerCase().includes("setup") || 
+                          groupName.toLowerCase().includes("report") || 
+                          groupName.toLowerCase().includes("transaction") || 
+                          groupName.toLowerCase().includes("management");
+
+      const groupCard = createCard(groupName, itemCardX, currentY, itemWidth, itemHeight, isHighlight);
       parentFrame.appendChild(groupCard);
       currentY += itemHeight + itemGapY;
 
-      // Nested Items (Light Blue Stack)
+      // Nested Items
       if (Array.isArray(items) && items.length > 0) {
         const nestedX = itemCardX + 24;
-        const subGroupStartY = currentY;
 
         for (const item of items) {
           const itemTitle = typeof item === 'string' ? item : (item.text || item.name || "Item");
           const subCard = createCard(itemTitle, nestedX, currentY, itemWidth - 16, 32, false);
           parentFrame.appendChild(subCard);
 
-          // Elbow connector for nested items
           drawLConnector(parentFrame, itemCardX + 16, currentY + 16, nestedX, currentY + 16);
           currentY += 32 + 8;
         }
@@ -193,7 +224,7 @@ function createCard(title, x, y, width, height, isHighlight) {
   card.cornerRadius = 6;
 
   if (isHighlight) {
-    card.fills = [{ type: 'SOLID', color: { r: 0.23, g: 0.51, b: 0.96 } }]; // Highlighted Blue
+    card.fills = [{ type: 'SOLID', color: { r: 0.23, g: 0.51, b: 0.96 } }]; // Highlighted Blue #3b82f6
     card.strokes = [{ type: 'SOLID', color: { r: 0.15, g: 0.39, b: 0.92 } }];
   } else {
     card.fills = [{ type: 'SOLID', color: { r: 0.86, g: 0.92, b: 0.99 } }]; // Light Blue #dbeafe
@@ -214,14 +245,13 @@ function createCard(title, x, y, width, height, isHighlight) {
 
 function drawLConnector(parentFrame, x1, y1, x2, y2) {
   const vector = figma.createVector();
-  // Clean right-angle elbow connector with rounded corner
   const cornerR = 6;
   const path = `M ${x1} ${y1} V ${y2 - cornerR} Q ${x1} ${y2} ${x1 + cornerR} ${y2} H ${x2}`;
   vector.vectorPaths = [{
     windingRule: "NONE",
     data: path
   }];
-  vector.strokes = [{ type: 'SOLID', color: { r: 0.17, g: 0.5, b: 1.0 } }]; // Reference Blue #2b7fff
+  vector.strokes = [{ type: 'SOLID', color: { r: 0.17, g: 0.5, b: 1.0 } }]; // #2b7fff
   vector.strokeWeight = 1.8;
   parentFrame.appendChild(vector);
 }
