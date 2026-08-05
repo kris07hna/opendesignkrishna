@@ -214,12 +214,14 @@ function createCard(title, x, y, width, height, isHighlight) {
 
 function drawLConnector(parentFrame, x1, y1, x2, y2) {
   const vector = figma.createVector();
-  const midY = (y1 + y2) / 2;
+  // Clean right-angle elbow connector with rounded corner
+  const cornerR = 6;
+  const path = `M ${x1} ${y1} V ${y2 - cornerR} Q ${x1} ${y2} ${x1 + cornerR} ${y2} H ${x2}`;
   vector.vectorPaths = [{
     windingRule: "NONE",
-    data: `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`
+    data: path
   }];
-  vector.strokes = [{ type: 'SOLID', color: { r: 0.23, g: 0.51, b: 0.96 } }]; // #3b82f6
-  vector.strokeWeight = 1.5;
+  vector.strokes = [{ type: 'SOLID', color: { r: 0.17, g: 0.5, b: 1.0 } }]; // Reference Blue #2b7fff
+  vector.strokeWeight = 1.8;
   parentFrame.appendChild(vector);
 }
