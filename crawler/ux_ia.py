@@ -56,14 +56,47 @@ def is_valid_link(start_url, full_url):
 
     return True
 
+def extract_dynamic_categories_from_site(site_graph: dict) -> dict:
+    """
+    Dynamically groups navigation items into categories based on URL path prefixes
+    or DOM landmarks — 100% dynamic for ANY website (Stripe, Guardian, Linear, Amazon, etc.).
+    """
+    categories = {}
+    for url, page_data in site_graph.items():
+        ia = page_data.get("ia", {})
+        nav_items = ia.get("navigation", [])
+        for item in nav_items:
+            if isinstance(item, dict) and item.get("name"):
+                name = item.get("name").strip()
+                href = item.get("href", "")
+                if not name or len(name) > 45:
+                    continue
+
+                parsed_path = [p for p in urlparse(href).path.strip("/").split("/") if p]
+                if parsed_path:
+                    cat_name = parsed_path[0].replace("-", " ").replace("_", " ").title()
+                    if len(cat_name) <= 22 and not cat_name.isdigit():
+                        if cat_name not in categories:
+                            categories[cat_name] = []
+                        if name not in categories[cat_name]:
+                            categories[cat_name].append(name)
+                        continue
+
+                if "Main Navigation" not in categories:
+                    categories["Main Navigation"] = []
+                if name not in categories["Main Navigation"]:
+                    categories["Main Navigation"].append(name)
+
+    return categories
+
 def generate_figma_artifacts(output_dir: str, site_graph: dict):
     """
-    Generates Figma-compatible JSON (sitemap_figma.json) and drag-and-drop vector SVG (sitemap_visual.svg)
-    so users can directly visualize the extracted sitemap inside Figma.
+    Generates Figma-compatible JSON (sitemap_figma.json), figma_import_bundle.json,
+    and drag-and-drop vector SVG (sitemap_visual.svg) 100% dynamically for any website.
     """
     try:
+        categories = extract_dynamic_categories_from_site(site_graph)
         figma_nodes = []
-        categories = {}
 
         for url, page_data in site_graph.items():
             ia = page_data.get("ia", {})
@@ -76,19 +109,6 @@ def generate_figma_artifacts(output_dir: str, site_graph: dict):
                     name = item.get("name").strip()
                     href = item.get("href", "")
                     children.append({"name": name, "href": href, "type": "LINK"})
-
-                    # Track categories for SVG layout
-                    found_cat = False
-                    for c_name in ["Products", "Solutions", "Developers", "Resources", "News", "Opinion", "Sport", "Culture", "Lifestyle"]:
-                        if c_name.lower() in href.lower() or c_name.lower() in name.lower():
-                            if c_name not in categories: categories[c_name] = []
-                            if name not in categories[c_name]: categories[c_name].append(name)
-                            found_cat = True
-                            break
-                    if not found_cat and name not in ["Sign in", "Start now"]:
-                        if "General" not in categories: categories["General"] = []
-                        if name not in categories["General"] and len(categories["General"]) < 12:
-                            categories["General"].append(name)
 
             figma_nodes.append({
                 "id": url,
@@ -110,7 +130,7 @@ def generate_figma_artifacts(output_dir: str, site_graph: dict):
             json.dump(figma_data, f, indent=2)
         log(f"Figma JSON artifact saved to {figma_path}", "INFO")
 
-        # Save PERFECT figma_import_bundle.json for Figma Plugin tree layout
+        # Save PERFECT figma_import_bundle.json dynamically for any website
         nav_tree = {}
         for url, page_data in site_graph.items():
             vh = page_data.get("visual_hierarchy", {})
@@ -127,14 +147,7 @@ def generate_figma_artifacts(output_dir: str, site_graph: dict):
                                     nav_tree[drop_name][col_name] = item_names
 
         if not nav_tree and categories:
-            nav_tree = {cat: {"Items": items} for cat, items in categories.items() if items}
-
-        if not nav_tree:
-            nav_tree = {
-                "Navigation": {
-                    "Main Sections": ["News", "Opinion", "Sport", "Culture", "Lifestyle"]
-                }
-            }
+            nav_tree = {cat: {"Links": items} for cat, items in categories.items() if items}
 
         bundle_data = {
             "version": "2.0",
@@ -144,7 +157,7 @@ def generate_figma_artifacts(output_dir: str, site_graph: dict):
         bundle_path = os.path.join(output_dir, "figma_import_bundle.json")
         with open(bundle_path, "w", encoding="utf-8") as f:
             json.dump(bundle_data, f, indent=2)
-        log(f"Perfect Figma Import Bundle saved to {bundle_path}", "INFO")
+        log(f"Dynamic Figma Import Bundle saved to {bundle_path}", "INFO")
 
         # Save SVG vector sitemap (sitemap_visual.svg) for direct drag-and-drop into Figma
         cat_keys = list(categories.keys()) or ["Main Nav"]
