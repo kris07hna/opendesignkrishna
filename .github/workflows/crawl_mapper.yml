@@ -88,13 +88,12 @@ jobs:
           
           echo "Running full OpenDesign advanced CLI extraction..."
           
-          # We use the advanced CLI command directly which automatically creates whiteboards!
-          # We run the command globally since the daemon is running locally
+          # Run the crawler via the daemon CLI
           node /app/apps/daemon/dist/cli.js user-flow \
             --url "${{ inputs.url }}" \
             --goal "${{ inputs.goal }}" \
             --project "$PROJECT_ID" \
-            --json > output.json
+            --json | tee output.json
             
           echo "Crawler Output:"
           cat output.json
@@ -102,21 +101,34 @@ jobs:
       - name: Extract Artifacts Path
         id: parse_output
         run: |
+          set +e
           # Parse the json output to find where the sitemap/sketch was saved
-          SKETCH_PATH=$(grep -o '"sketchPath":"[^"]*' output.json | grep -o '[^"]*$')
-          SITEMAP_PATH=$(grep -o '"sitemapPath":"[^"]*' output.json | grep -o '[^"]*$')
+          SKETCH_PATH=$(grep -o '"sketchPath":"[^"]*' output.json 2>/dev/null | grep -o '[^"]*$')
+          SITEMAP_PATH=$(grep -o '"sitemapPath":"[^"]*' output.json 2>/dev/null | grep -o '[^"]*$')
           
           mkdir -p artifacts
+          
+          # Also copy any screenshots the crawler produced
+          if [ -d "/app/screenshots_ai" ]; then
+            cp -r /app/screenshots_ai/* artifacts/ 2>/dev/null || true
+          fi
+          
           if [ ! -z "$SKETCH_PATH" ] && [ -f "$SKETCH_PATH" ]; then
             cp "$SKETCH_PATH" artifacts/
           fi
           if [ ! -z "$SITEMAP_PATH" ] && [ -f "$SITEMAP_PATH" ]; then
             cp "$SITEMAP_PATH" artifacts/
           fi
+          
+          # List what we collected
+          echo "Collected artifacts:"
+          ls -la artifacts/ 2>/dev/null || echo "(none)"
 
       - name: Upload Output Artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Enterprise-UX-Flow-Map
           path: artifacts/
           retention-days: 7
+          if-no-files-found: warn

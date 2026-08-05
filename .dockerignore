@@ -8,6 +8,12 @@
 .ocd
 node_modules
 dist
+.venv
+__pycache__
+screenshots
+screenshots_ai
+crawl4ai
+.tmp
 coverage
 *.log
 tsconfig.tsbuildinfo

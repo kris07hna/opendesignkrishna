@@ -34,17 +34,19 @@ COPY . .
 
 # Install JS dependencies and build the daemon
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @open-design/daemon build
+RUN pnpm --filter @open-design/daemon... build
 
-# Install Python dependencies for the crawler
-RUN python3 -m pip install --upgrade pip --break-system-packages
-RUN python3 -m pip install playwright nest_asyncio --break-system-packages
+# Create a proper Linux .venv and install Python dependencies into it.
+# The daemon's resolvePythonBin() looks for /app/.venv/bin/python first.
+RUN python3 -m venv /app/.venv
+RUN /app/.venv/bin/pip install --upgrade pip
+RUN /app/.venv/bin/pip install playwright nest_asyncio
 
-# Install Playwright browsers (Chromium)
-RUN npx playwright install --with-deps chromium
+# Install Playwright browsers (Chromium) — uses the venv's playwright
+RUN /app/.venv/bin/python -m playwright install --with-deps chromium
 
 # Expose the daemon port
-EXPOSE 3000
+EXPOSE 7456
 
 # Default entrypoint for the container
 CMD ["node", "apps/daemon/dist/cli.js"]
