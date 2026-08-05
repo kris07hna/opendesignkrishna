@@ -2071,7 +2071,7 @@ Options:
     process.exit(1);
   }
 
-  const baseUrl = resolveDaemonUrl(flags['daemon-url']);
+  const baseUrl = await resolveDaemonUrl(flags['daemon-url']);
   const endpoint = `${baseUrl}/api/projects/${encodeURIComponent(projectId)}/user-flows/crawl`;
 
   if (flags.json) {

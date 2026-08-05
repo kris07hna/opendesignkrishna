@@ -77,15 +77,15 @@ jobs:
           timeout 30 bash -c 'until curl -s http://localhost:7456 > /dev/null || curl -s http://localhost:7456/api/health > /dev/null; do sleep 1; done'
           echo "Daemon is ready!"
 
-      - name: Initialize Project Database
-        run: |
-          echo "Creating dummy project to avoid fresh-database crash..."
-          node /app/apps/daemon/dist/cli.js project create --id default --name "CI Runner" || echo "Project already exists"
-
-      - name: Advanced AI Extraction (od user-flow)
+      - name: Initialize Project Database and Run Extraction
         env:
           PYTHONUNBUFFERED: "1"
         run: |
+          echo "Creating dummy project to avoid fresh-database crash..."
+          PROJECT_JSON=$(node /app/apps/daemon/dist/cli.js project create --name "CI Runner" --json)
+          PROJECT_ID=$(echo "$PROJECT_JSON" | jq -r '.project.id')
+          echo "Created project ID: $PROJECT_ID"
+          
           echo "Running full OpenDesign advanced CLI extraction..."
           
           # We use the advanced CLI command directly which automatically creates whiteboards!
@@ -93,7 +93,7 @@ jobs:
           node /app/apps/daemon/dist/cli.js user-flow \
             --url "${{ inputs.url }}" \
             --goal "${{ inputs.goal }}" \
-            --project default \
+            --project "$PROJECT_ID" \
             --json > output.json
             
           echo "Crawler Output:"
