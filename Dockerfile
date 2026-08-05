@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up pnpm
-RUN corepack enable && npm install -g pnpm@10.33.2
+RUN npm install -g pnpm@10.33.2
 
 # Install global opencode-ai CLI (required by user workflow)
 RUN npm install -g opencode-ai
