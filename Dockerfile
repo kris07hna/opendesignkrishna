@@ -42,7 +42,9 @@ RUN python3 -m venv /app/.venv
 RUN /app/.venv/bin/pip install --upgrade pip
 RUN /app/.venv/bin/pip install playwright nest_asyncio
 
-# Install Playwright browsers (Chromium) — uses the venv's playwright
+# Give the Python Playwright its own browser directory so it never conflicts
+# with the Node.js playwright-core browsers installed by pnpm.
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
 RUN /app/.venv/bin/python -m playwright install --with-deps chromium
 
 # Expose the daemon port
