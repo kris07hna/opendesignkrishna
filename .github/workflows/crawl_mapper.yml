@@ -71,8 +71,16 @@ jobs:
           echo "Starting pre-built OpenDesign Daemon from container..."
           # The container already has the daemon built in /app
           cd /app && node apps/daemon/dist/cli.js --no-open &
-          # Give it a few seconds to initialize
-          sleep 10
+          
+          # Wait for daemon to be fully ready to avoid race conditions
+          echo "Waiting for daemon to be ready..."
+          timeout 30 bash -c 'until curl -s http://localhost:3000 > /dev/null || curl -s http://localhost:3000/api/health > /dev/null; do sleep 1; done'
+          echo "Daemon is ready!"
+
+      - name: Initialize Project Database
+        run: |
+          echo "Creating dummy project to avoid fresh-database crash..."
+          node /app/apps/daemon/dist/cli.js project create --id default --name "CI Runner" || echo "Project already exists"
 
       - name: Advanced AI Extraction (od user-flow)
         env:
@@ -86,7 +94,6 @@ jobs:
             --url "${{ inputs.url }}" \
             --goal "${{ inputs.goal }}" \
             --project default \
-            --model "${{ inputs.model }}" \
             --json > output.json
             
           echo "Crawler Output:"
