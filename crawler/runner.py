@@ -92,9 +92,9 @@ async def run_crawler(start_url: str, goal: str, output_dir: str, model: str = D
                     "step": step,
                     "url": current_url,
                     "viewport": vp_name,
-                    "screenshot": os.path.join(output_dir, shot_name), # Full path for now
+                    "screenshot": shot_path,
                     "ia": ia_data,
-                    "title": await page.title()
+                    "title": page_title
                 }
                 flow_steps.append(step_data)
                 
