@@ -57,85 +57,59 @@ on:
 jobs:
   crawl_and_map:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}:main
+      # Ignore entrypoint so Actions can run standard job steps
+      options: --entrypoint ""
     
     steps:
-      # Step 1: Checkout the source code from the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
-      # Step 2: Set up the Python environment (version 3.12)
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      # Step 3: Set up Node.js to allow installation of the OpenCode AI CLI
-      - name: Set up Node.js (for OpenCode CLI)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      # Step 4: Install Linux system dependencies required by Playwright (headless browser)
-      - name: Install System Dependencies for Playwright
+      - name: Start OpenDesign Daemon (Background)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libgbm-dev
+          echo "Starting pre-built OpenDesign Daemon from container..."
+          # The container already has the daemon built in /app
+          cd /app && node apps/daemon/dist/cli.js --no-open &
+          # Give it a few seconds to initialize
+          sleep 10
 
-      # Step 5: Install Python libraries (playwright for browser automation, nest_asyncio for async)
-      - name: Install Python Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install playwright nest_asyncio
-
-      # Step 6: Download the actual headless Chromium browser binary
-      - name: Install Playwright Browsers
-        run: |
-          playwright install --with-deps chromium
-
-      # Step 7: Install the global npm package for the OpenCode AI engine
-      - name: Install OpenCode CLI
-        run: |
-          npm install -g opencode-ai
-
-      # Step 8: Execute the crawler using the AI-driven dynamic Playwright extractor
-      - name: Dynamic AI Playwright Extractor (ux-ia)
+      - name: Advanced AI Extraction (od user-flow)
         env:
           PYTHONUNBUFFERED: "1"
-        working-directory: opendesign-crawler-repo
         run: |
-          echo "💡 Tip: You can run this same flow locally using the OpenDesign CLI!"
-          echo "Run: od user-flow --url '${{ inputs.url }}' --goal '${{ inputs.goal }}' --project <project_id> --model '${{ inputs.model }}'"
+          echo "Running full OpenDesign advanced CLI extraction..."
           
-          # Build dynamic flags based on workflow inputs
-          VIEWPORT_FLAG=""
-          if [ "${{ inputs.viewport }}" == "desktop-only" ]; then
-            VIEWPORT_FLAG="--desktop-only"
-          fi
-          if [ "${{ inputs.viewport }}" == "mobile-only" ]; then
-            VIEWPORT_FLAG="--mobile-only"
-          fi
-          
-          FULLPAGE_FLAG=""
-          if [ "${{ inputs.full_page }}" == "true" ]; then
-            FULLPAGE_FLAG="--full-page"
-          fi
-          
-          # Run the modular enterprise crawler
-          python -u crawl_map_ai.py \
+          # We use the advanced CLI command directly which automatically creates whiteboards!
+          # We run the command globally since the daemon is running locally
+          node /app/apps/daemon/dist/cli.js user-flow \
             --url "${{ inputs.url }}" \
             --goal "${{ inputs.goal }}" \
-            --mode "${{ inputs.mode }}" \
+            --project default \
             --model "${{ inputs.model }}" \
-            --max-steps "${{ inputs.max_steps }}" \
-            --output-dir "screenshots_ai_output" \
-            $VIEWPORT_FLAG $FULLPAGE_FLAG
+            --json > output.json
+            
+          echo "Crawler Output:"
+          cat output.json
 
-      # Step 9: Zip the screenshots and sitemap.json and upload them to the GitHub UI for download
+      - name: Extract Artifacts Path
+        id: parse_output
+        run: |
+          # Parse the json output to find where the sitemap/sketch was saved
+          SKETCH_PATH=$(grep -o '"sketchPath":"[^"]*' output.json | grep -o '[^"]*$')
+          SITEMAP_PATH=$(grep -o '"sitemapPath":"[^"]*' output.json | grep -o '[^"]*$')
+          
+          mkdir -p artifacts
+          if [ ! -z "$SKETCH_PATH" ] && [ -f "$SKETCH_PATH" ]; then
+            cp "$SKETCH_PATH" artifacts/
+          fi
+          if [ ! -z "$SITEMAP_PATH" ] && [ -f "$SITEMAP_PATH" ]; then
+            cp "$SITEMAP_PATH" artifacts/
+          fi
+
       - name: Upload Output Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Enterprise-UX-Flow-Map
-          path: opendesign-crawler-repo/screenshots_ai_output/
+          path: artifacts/
           retention-days: 7
