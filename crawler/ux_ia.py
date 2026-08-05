@@ -313,38 +313,55 @@ async def run_ux_ia(start_url: str, output_dir: str, model: str = DEFAULT_MODEL,
         json.dump(site_graph, f, indent=2)
     log(f"Raw IA Graph exported to {raw_path} ({len(site_graph)} pages)", "INFO")
 
-    # 2. AI UX Synthesis — sends only a compressed summary, not the full graph
+    # 2. AI UX Synthesis — sends structured dropdown hierarchy (dropdown -> categories -> items)
     log(f"Phase 3: Feeding IA structure to LLM for UX synthesis ({model})...", "AI")
 
-    # Build a compact summary (not raw graph) to save tokens
     dropdown_summary = {}
     footer_summary = {}
     for url, page_data in site_graph.items():
         vh = page_data.get("visual_hierarchy", {})
-        for drop_name, col_map in (vh.get("Header", {}).get("Dropdowns", {})).items():
-            if drop_name not in dropdown_summary:
-                dropdown_summary[drop_name] = list(col_map.keys()) if isinstance(col_map, dict) else []
-        for col_name in (vh.get("Footer", {}).get("Columns", {})).keys():
-            footer_summary[col_name] = True
+        header_drops = vh.get("Header", {}).get("Dropdowns", {})
+        if isinstance(header_drops, dict):
+            for drop_name, col_map in header_drops.items():
+                if drop_name not in dropdown_summary:
+                    dropdown_summary[drop_name] = {}
+                if isinstance(col_map, dict):
+                    for col_name, items in col_map.items():
+                        if isinstance(items, list):
+                            item_names = [it.get("text") for it in items if isinstance(it, dict) and it.get("text")]
+                            if item_names:
+                                dropdown_summary[drop_name][col_name] = item_names[:10]
+
+        footer_cols = vh.get("Footer", {}).get("Columns", {})
+        if isinstance(footer_cols, dict):
+            for col_name, items in footer_cols.items():
+                if col_name not in footer_summary and isinstance(items, list):
+                    item_names = [it.get("text") for it in items if isinstance(it, dict) and it.get("text")]
+                    if item_names:
+                        footer_summary[col_name] = item_names[:10]
 
     summary = {
         "total_pages": len(site_graph),
         "header_dropdowns": dropdown_summary,
-        "footer_columns": list(footer_summary.keys()),
+        "footer_columns": footer_summary,
         "extraction_plan_used": os.path.exists(os.path.join(output_dir, "ia_extraction_plan.json"))
     }
 
-    prompt = f"""You are a Senior UX Engineer analyzing the Information Architecture of a website.
-A crawler extracted {summary['total_pages']} pages using a plan-driven mega-menu extractor.
+    prompt = f"""You are a Senior UX Architect analyzing the Navigation Information Architecture of a website.
 
-Navigation Summary:
+CRITICAL INSTRUCTION:
+- Focus STRICTLY on the extracted Header Dropdown categories and item link titles.
+- DO NOT include body section headings, body paragraphs, marketing text, or page copy.
+- Your breakdown MUST detail each Header Dropdown -> Category Heading -> Dropdown Link Titles.
+
+Extracted Navigation Structure:
 {json.dumps(summary, indent=2)}
 
-Synthesize this into a clean, professional IA overview in Markdown format including:
-1. Executive UX Overview (2-3 paragraphs on the site's structure and user intent).
-2. Mermaid Diagram: A `flowchart TD` with subgraphs for each Header Dropdown and its sub-columns.
-3. Section Map: Bullet-list breakdown of Header dropdowns → sub-columns → key items.
-4. UX Recommendations: 3 specific improvements based on the IA structure.
+Synthesize this into a clean, professional UX IA overview in Markdown format:
+1. Executive UX Overview (2-3 paragraphs analyzing the site's top-level navigation, categorization quality, and information density).
+2. Mermaid Diagram: A `flowchart TD` illustrating Header Dropdowns -> Category Headings -> Sub-Item Titles.
+3. Section Map: Bullet-list breakdown detailing every Header Dropdown -> Sub-Category Heading -> Dropdown Item Link Titles.
+4. UX Recommendations: 3 targeted recommendations to optimize navigation clarity, discoverability, and structure.
 """
 
     ai_response = await ask_opencode(prompt, model=model)
