@@ -127,6 +127,13 @@ jobs:
           find /app/.od/projects -name "*.md" -exec cp {} artifacts/ \; 2>/dev/null || true
           find /app/.od/projects -name "*.json" -exec cp {} artifacts/ \; 2>/dev/null || true
 
+          # Copy Figma plugin package into artifacts
+          if [ -d "/app/tools/figma-sitemap-plugin" ]; then
+            cp -r /app/tools/figma-sitemap-plugin artifacts/figma-plugin 2>/dev/null || true
+          elif [ -d "tools/figma-sitemap-plugin" ]; then
+            cp -r tools/figma-sitemap-plugin artifacts/figma-plugin 2>/dev/null || true
+          fi
+
           # Fallback check in /app
           if [ -d "/app/screenshots_ai" ]; then
             cp -r /app/screenshots_ai/* artifacts/ 2>/dev/null || true
