@@ -70,6 +70,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Sync Latest Crawler Code into Container /app
+        run: |
+          echo "Syncing latest git commit code into /app..."
+          cp -rf crawl_map_ai.py crawler /app/
+
       - name: Start OpenDesign Daemon (Background)
         run: |
           echo "Starting pre-built OpenDesign Daemon from container..."
