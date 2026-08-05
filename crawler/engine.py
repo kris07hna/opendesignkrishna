@@ -126,6 +126,30 @@ async def dismiss_all_overlays(page: Page) -> int:
     except Exception:
         return 0
 
+async def expand_all_dropdowns(page: Page):
+    """
+    Finds and interacts with all header/footer dropdown triggers and submenus
+    so hidden megamenu links are rendered into the DOM.
+    """
+    try:
+        triggers = page.locator(
+            "header [aria-expanded='false'], header button[aria-haspopup], "
+            "nav [aria-expanded='false'], nav button[aria-haspopup], "
+            "header .dropdown-toggle, nav .dropdown-toggle, "
+            "header .menu-item-has-children > a, nav .menu-item-has-children > a"
+        )
+        count = await triggers.count()
+        for i in range(min(count, 15)):
+            try:
+                el = triggers.nth(i)
+                if await el.is_visible():
+                    await el.hover(timeout=1000)
+                    await asyncio.sleep(0.2)
+            except Exception:
+                pass
+    except Exception:
+        pass
+
 async def settle_page(page: Page, full_scroll: bool = True):
     for state in ("networkidle", "domcontentloaded", "load"):
         try:
@@ -153,7 +177,8 @@ async def settle_page(page: Page, full_scroll: bool = True):
             pass
 
     await dismiss_all_overlays(page)
-    await asyncio.sleep(2)
+    await expand_all_dropdowns(page)
+    await asyncio.sleep(1)
 
 async def take_screenshot(page: Page, path: str, full_page: bool = True):
     await settle_page(page, full_scroll=full_page)
