@@ -72,9 +72,9 @@ jobs:
           # The container already has the daemon built in /app
           cd /app && node apps/daemon/dist/cli.js --no-open &
           
-          # Wait for daemon to be fully ready to avoid race conditions
+          # Wait for daemon to be fully ready to avoid race conditions (daemon defaults to 7456)
           echo "Waiting for daemon to be ready..."
-          timeout 30 bash -c 'until curl -s http://localhost:3000 > /dev/null || curl -s http://localhost:3000/api/health > /dev/null; do sleep 1; done'
+          timeout 30 bash -c 'until curl -s http://localhost:7456 > /dev/null || curl -s http://localhost:7456/api/health > /dev/null; do sleep 1; done'
           echo "Daemon is ready!"
 
       - name: Initialize Project Database
