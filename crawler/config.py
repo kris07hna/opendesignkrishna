@@ -10,7 +10,7 @@ if hasattr(sys.stdout, 'reconfigure'):
         pass
 
 VERSION = "3.0.0" # Enterprise Edition
-DEFAULT_MODEL = "opencode/deepseek-v4-flash"
+DEFAULT_MODEL = "opencode/deepseek-v4-flash-free"
 MAX_STEPS = 10
 MAX_RETRIES = 3
 

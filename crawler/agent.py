@@ -113,4 +113,4 @@ Respond ONLY with a JSON object in this format:
         return json.loads(json_text)
     except Exception as e:
         log(f"Failed to parse LLM JSON: {e}", "ERROR")
-        return {"action": "WAIT", "reasoning": "Fallback due to parse error"}
+        return {"action": "CLICK_NAV", "reasoning": "Fallback to heuristic navigation"}

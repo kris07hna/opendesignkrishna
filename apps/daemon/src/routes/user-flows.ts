@@ -296,7 +296,7 @@ export function registerUserFlowRoutes(
       const mode = body.mode;
       const model = body.model;
       const viewport = body.viewport;
-      const fullPage = body.fullPage;
+      const fullPage = body.fullPage ?? true;
       const noAi = body.noAi;
 
       if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.trim()) {
