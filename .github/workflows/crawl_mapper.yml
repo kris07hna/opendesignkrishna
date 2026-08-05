@@ -100,14 +100,18 @@ jobs:
           set +e
           mkdir -p artifacts
           
-          # Copy any screenshots or flow maps generated in /app
+          echo "Searching for all project output files in /app/.od/projects/ ..."
+          
+          # Copy all screenshots, sketch.json whiteboards, md reports, and JSON sitemaps from the project dir
+          find /app/.od/projects -name "*.png" -exec cp {} artifacts/ \; 2>/dev/null || true
+          find /app/.od/projects -name "*.sketch.json" -exec cp {} artifacts/ \; 2>/dev/null || true
+          find /app/.od/projects -name "*.md" -exec cp {} artifacts/ \; 2>/dev/null || true
+          find /app/.od/projects -name "*.json" -exec cp {} artifacts/ \; 2>/dev/null || true
+
+          # Fallback check in /app
           if [ -d "/app/screenshots_ai" ]; then
             cp -r /app/screenshots_ai/* artifacts/ 2>/dev/null || true
           fi
-          
-          # Find any .json or .sketch.json files in projects directory or root
-          find /app -name "*.sketch.json" -exec cp {} artifacts/ \; 2>/dev/null || true
-          find /app -name "sitemap*.json" -exec cp {} artifacts/ \; 2>/dev/null || true
 
           # List what we collected
           echo "Collected artifacts:"
