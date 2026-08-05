@@ -108,10 +108,15 @@ async def worker(worker_id: int, queue: asyncio.Queue, visited: set, site_graph:
                         loc = page.locator("header nav, [role='navigation'], header").get_by_text(trigger, exact=False).first
                         cnt = await loc.count()
                         log(f"[W{worker_id}] Trigger '{trigger}' found count={cnt}", "INFO")
-                        if cnt:
-                            await loc.hover()
-                            log(f"[W{worker_id}] Hovered trigger '{trigger}'", "INFO")
-                            await asyncio.sleep(0.3)  # Wait for transition/render
+                        if cnt and await loc.is_visible():
+                            try:
+                                await loc.hover(timeout=1500)
+                                log(f"[W{worker_id}] Hovered trigger '{trigger}'", "INFO")
+                                await asyncio.sleep(0.3)  # Wait for transition/render
+                            except Exception:
+                                pass
+                        else:
+                            continue
 
                             # Extract currently visible panel
                             panel_data = await page.evaluate("""({panelSel, colHdgSel, itemSel}) => {
