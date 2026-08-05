@@ -108,18 +108,18 @@ async def worker(worker_id: int, queue: asyncio.Queue, visited: set, site_graph:
                         loc = page.locator("header nav, [role='navigation'], header").get_by_text(trigger, exact=False).first
                         cnt = await loc.count()
                         log(f"[W{worker_id}] Trigger '{trigger}' found count={cnt}", "INFO")
-                        if cnt and await loc.is_visible():
-                            try:
-                                await loc.hover(timeout=1500)
-                                log(f"[W{worker_id}] Hovered trigger '{trigger}'", "INFO")
-                                await asyncio.sleep(0.3)  # Wait for transition/render
-                            except Exception:
-                                pass
-                        else:
+                        if not cnt or not await loc.is_visible():
                             continue
 
-                            # Extract currently visible panel
-                            panel_data = await page.evaluate("""({panelSel, colHdgSel, itemSel}) => {
+                        try:
+                            await loc.hover(force=True, timeout=1500)
+                            log(f"[W{worker_id}] Hovered trigger '{trigger}'", "INFO")
+                            await asyncio.sleep(0.3)  # Wait for transition/render
+                        except Exception:
+                            pass
+
+                        # Extract currently visible panel
+                        panel_data = await page.evaluate("""({panelSel, colHdgSel, itemSel}) => {
                                 const clean = (s, n=80) => (s||'').replace(/\\s+/g,' ').trim().slice(0,n);
                                 const panels = Array.from(document.querySelectorAll(panelSel));
                                 const visiblePanel = panels.find(p => {
@@ -161,15 +161,15 @@ async def worker(worker_id: int, queue: asyncio.Queue, visited: set, site_graph:
                             }""", {"panelSel": panel_sel, "colHdgSel": col_hdg, "itemSel": item_sel})
 
 
-                            if panel_data and isinstance(panel_data, dict):
-                                # Only add if it actually extracted links
-                                has_links = False
-                                for col, items in panel_data.items():
-                                    if items and len(items) > 0:
-                                        has_links = True
-                                        break
-                                if has_links:
-                                    dropdowns[trigger] = panel_data
+                        if panel_data and isinstance(panel_data, dict):
+                            # Only add if it actually extracted links
+                            has_links = False
+                            for col, items in panel_data.items():
+                                if items and len(items) > 0:
+                                    has_links = True
+                                    break
+                            if has_links:
+                                dropdowns[trigger] = panel_data
 
                     except Exception as e:
                         log(f"[W{worker_id}] Error hovering/extracting trigger '{trigger}': {e}", "WARN")
