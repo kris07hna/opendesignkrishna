@@ -22,12 +22,16 @@ def get_same_domain_links(base_url, hrefs):
             valid_links.add(full_url)
     return list(valid_links)
 
-async def run_spider(start_url: str, output_dir: str, full_page: bool = True, desktop_only: bool = False, mobile_only: bool = False, max_pages: int = MAX_STEPS):
-    os.makedirs(output_dir, exist_ok=True)
+async def run_spider(start_url: str, output_dir: str, full_page: bool = True, desktop_only: bool = False, mobile_only: bool = False, max_pages: int = MAX_STEPS, no_screenshots: bool = False):
+    domain = urlparse(start_url).netloc.replace("www.", "").replace(".", "_") or "site"
+    site_dir = os.path.join(output_dir, domain)
+    os.makedirs(site_dir, exist_ok=True)
     log(f"Enterprise Site Spider Mapper v{VERSION}", "INFO")
-    log(f"URL       : {start_url}", "INFO")
-    log(f"Max Pages : {max_pages}", "INFO")
-    log(f"Output    : {output_dir}/", "INFO")
+    log(f"URL            : {start_url}", "INFO")
+    log(f"Domain Label   : {domain}", "INFO")
+    log(f"Max Pages      : {max_pages}", "INFO")
+    log(f"No Screenshots : {no_screenshots}", "INFO")
+    log(f"Output         : {site_dir}/", "INFO")
     
     viewports = []
     if not mobile_only: viewports.append("desktop")

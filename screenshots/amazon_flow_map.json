@@ -1,0 +1,27 @@
+[
+  {
+    "step": 1,
+    "name": "Amazon Homepage",
+    "url": "https://www.amazon.in/?&tag=googhydrabk1-21&ref=pd_sl_7hz2t19t5c_e&adgrpid=155259815513&hvpone=&hvptwo=&hvadid=815461303151&hvpos=&hvnetw=g&hvrand=3931857747114171464&hvqmt=e&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9300146&hvtargid=kwd-10573980&hydadcr=14453_2462831&mcid=4c22dcdee2bf3a71b0b832c5c4ba9c17&hvocijid=3931857747114171464--&hvexpln=nav&gad_source=1",
+    "screenshot": "screenshots\\1_amazon_homepage.png"
+  },
+  {
+    "step": 2,
+    "name": "Sony Headphones Product Page",
+    "url": "https://www.amazon.in/Sony-Bluetooth-Headphones-Multipoint-Connectivity/dp/B0BS1RT9S2/?*encoding=UTF8&pd_rd_w=eEJum&content-id=amzn1.sym.b01ec959-5d64-4319-9228-31ffe490fcf3&pf_rd_p=b01ec959-5d64-4319-9228-31ffe490fcf3&pf_rd_r=DT2KPYF5Y1YFMRBPBEDF&pd_rd_wg=lN4J0&pd_rd_r=3133113c-1840-46ab-9723-97d3c3c797d9&ref*=pd_hp_d_btf_ls_gwc_pc_en2_&th=1",
+    "screenshot": "screenshots\\2_product_page.png"
+  },
+  {
+    "step": 3,
+    "name": "Added to Cart/Confirmation",
+    "url": "https://www.amazon.in/cart/smart-wagon?newItems=182630df-bf23-4108-9e6f-e7111d2e19c8,1&ref_=sw_refresh",
+    "screenshot": "screenshots\\3_cart_added.png"
+  },
+  {
+    "step": 4,
+    "name": "Auth Gate (Sign-In Page)",
+    "url": "https://www.amazon.in/ap/signin?openid.pape.max_auth_age=900&openid.return_to=https%3A%2F%2Fwww.amazon.in%2Fcheckout%2Fentry%2Fcart%3FisEligibilityLogicDisabled%3D1%26referrer%3Dcart%26ref_%3Dox_sw_proceed%26proceedToCheckout%3D1%26tangoWeblabStatus%3Dtango_enable_unrec_customer%26oldCustomerId%3D0%26pipelineType%3DChewbacca%26cartItemCount%3D1%26isUnrec%3D1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=amazon_checkout_in&openid.mode=checkid_setup&language=en_IN&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0",
+    "screenshot": null,
+    "auth_detected": true
+  }
+]

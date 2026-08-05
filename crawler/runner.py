@@ -8,12 +8,19 @@ from crawler.agent import synthesize_complex_goal
 from crawler.extractor import extract_information_architecture
 import json
 
-async def run_crawler(start_url: str, goal: str, output_dir: str, model: str = DEFAULT_MODEL, full_page: bool = True, desktop_only: bool = False, mobile_only: bool = False):
-    os.makedirs(output_dir, exist_ok=True)
+from urllib.parse import urlparse
+
+async def run_crawler(start_url: str, goal: str, output_dir: str, model: str = DEFAULT_MODEL, full_page: bool = True, desktop_only: bool = False, mobile_only: bool = False, no_screenshots: bool = False):
+    domain = urlparse(start_url).netloc.replace("www.", "").replace(".", "_") or "site"
+    site_dir = os.path.join(output_dir, domain)
+    os.makedirs(site_dir, exist_ok=True)
+
     log(f"Enterprise Web Flow Mapper v{VERSION}")
-    log(f"URL    : {start_url}")
-    log(f"Goal   : {goal}")
-    log(f"Output : {output_dir}/")
+    log(f"URL            : {start_url}")
+    log(f"Domain Label   : {domain}")
+    log(f"Goal           : {goal}")
+    log(f"Output         : {site_dir}/")
+    log(f"No Screenshots : {no_screenshots}")
     
     viewports = []
     if not mobile_only: viewports.append("desktop")
@@ -28,8 +35,6 @@ async def run_crawler(start_url: str, goal: str, output_dir: str, model: str = D
             page = await context.new_page()
             
             try:
-                # Increase timeout to 60s and ignore timeout errors. 
-                # Many enterprise sites hang on 3rd party scripts, but the DOM is already loaded.
                 await page.goto(start_url, wait_until="domcontentloaded", timeout=60000)
             except Exception as e:
                 log(f"Navigation timeout/error (ignoring): {e}", "WARN")
@@ -41,10 +46,13 @@ async def run_crawler(start_url: str, goal: str, output_dir: str, model: str = D
             for step in range(1, MAX_STEPS + 1):
                 log(f"Step {step}/{MAX_STEPS}", "INFO")
                 
-                # 1. Take Screenshot
-                shot_name = f"{vp_name}_step_{step:02d}.png"
-                shot_path = os.path.join(output_dir, shot_name)
-                await take_screenshot(page, shot_path, full_page)
+                # 1. Take Screenshot (if enabled)
+                shot_name = f"{domain}_{vp_name}_step_{step:02d}.png"
+                shot_path = os.path.join(site_dir, shot_name)
+                if not no_screenshots:
+                    await take_screenshot(page, shot_path, full_page)
+                else:
+                    shot_path = None
                 
                 # 2. Extract UX Information Architecture
                 ia_data = await extract_information_architecture(page)

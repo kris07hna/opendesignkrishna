@@ -59,6 +59,7 @@ interface CrawlOptions {
   fullPage?: boolean | undefined;
   model?: string | undefined;
   noAi?: boolean | undefined;
+  noScreenshots?: boolean | undefined;
 }
 
 function handleStreamCrawl(
@@ -109,6 +110,9 @@ function handleStreamCrawl(
   }
   if (opts.noAi) {
     args.push('--no-ai');
+  }
+  if (opts.noScreenshots) {
+    args.push('--no-screenshots');
   }
 
   sendEvent('start', {
@@ -288,6 +292,7 @@ export function registerUserFlowRoutes(
         fullPage?: boolean;
         maxSteps?: number;
         noAi?: boolean;
+        noScreenshots?: boolean;
       };
       const body = (req.body ?? {}) as Partial<ExtendedUserFlowCrawlRequest>;
       const rawUrl = body.url;
@@ -298,6 +303,7 @@ export function registerUserFlowRoutes(
       const viewport = body.viewport;
       const fullPage = body.fullPage ?? true;
       const noAi = body.noAi;
+      const noScreenshots = body.noScreenshots;
 
       if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.trim()) {
         return sendApiError(res, 400, 'BAD_REQUEST', 'url is required');
@@ -326,7 +332,7 @@ export function registerUserFlowRoutes(
         req, res,
         projectId, targetUrl, goal, maxDepth,
         outputDir, pythonBin, crawlerScript, workspaceRoot,
-        { mode, model, viewport, fullPage, noAi },
+        { mode, model, viewport, fullPage, noAi, noScreenshots },
       );
     } catch (caught) {
       if (!res.headersSent) {

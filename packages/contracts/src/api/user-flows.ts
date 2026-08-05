@@ -8,6 +8,7 @@ export interface UserFlowCrawlRequest {
   maxDepth?: number;
   model?: string;
   noAi?: boolean;
+  noScreenshots?: boolean;
 }
 
 export interface UserFlowCrawlResponse {

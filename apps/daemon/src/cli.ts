@@ -300,7 +300,7 @@ const USER_FLOW_STRING_FLAGS = new Set([
   'daemon-url', 'url', 'goal', 'max-depth', 'max-steps', 'project', 'mode', 'model', 'viewport',
 ]);
 const USER_FLOW_BOOLEAN_FLAGS = new Set([
-  'help', 'h', 'json', 'full-page', 'no-ai', 'desktop-only', 'mobile-only',
+  'help', 'h', 'json', 'full-page', 'no-ai', 'no-screenshots', 'desktop-only', 'mobile-only',
 ]);
 // Hoisted because `runAutomation` is reachable through the top-of-file
 // SUBCOMMAND_MAP dispatch, which runs during module evaluation —
@@ -2069,6 +2069,7 @@ Options:
   const viewport = flags.viewport;
   const fullPage = flags['full-page'] ?? true;
   const noAi = flags['no-ai'] ?? false;
+  const noScreenshots = flags['no-screenshots'] ?? false;
   const projectId = flags.project || 'default';
 
   if (!url || !goal) {
@@ -2099,6 +2100,7 @@ Options:
         fullPage,
         maxSteps,
         noAi,
+        noScreenshots,
       }),
     });
 

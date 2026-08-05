@@ -217,13 +217,17 @@ async def worker(worker_id: int, queue: asyncio.Queue, visited: set, site_graph:
 
 
 async def run_ux_ia(start_url: str, output_dir: str, model: str = DEFAULT_MODEL,
-                    max_pages: int = MAX_STEPS, no_llm_plan: bool = False):
+                    max_pages: int = MAX_STEPS, no_llm_plan: bool = False, no_screenshots: bool = False):
 
-    os.makedirs(output_dir, exist_ok=True)
+    domain = urlparse(start_url).netloc.replace("www.", "").replace(".", "_") or "site"
+    site_dir = os.path.join(output_dir, domain)
+    os.makedirs(site_dir, exist_ok=True)
     log(f"LLM-as-Strategist IA Crawler v{VERSION}", "INFO")
-    log(f"URL       : {start_url}", "INFO")
-    log(f"Max Pages : {max_pages}", "INFO")
-    log(f"Output    : {output_dir}/", "INFO")
+    log(f"URL            : {start_url}", "INFO")
+    log(f"Domain Label   : {domain}", "INFO")
+    log(f"Max Pages      : {max_pages}", "INFO")
+    log(f"No Screenshots : {no_screenshots}", "INFO")
+    log(f"Output         : {site_dir}/", "INFO")
 
     site_graph = {}
     visited = set()

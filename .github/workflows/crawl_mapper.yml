@@ -52,7 +52,11 @@ on:
         description: 'OpenCode model to use'
         required: true
         default: 'opencode/deepseek-v4-flash-free'
-        type: string
+      no_screenshots:
+        description: 'JSON-only extraction mode: skip capturing screenshots (lightning fast)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   crawl_and_map:
@@ -88,6 +92,11 @@ jobs:
           
           echo "Running full OpenDesign advanced CLI extraction..."
           
+          EXTRA_FLAGS=""
+          if [ "${{ inputs.no_screenshots }}" = "true" ]; then
+            EXTRA_FLAGS="--no-screenshots"
+          fi
+          
           # Run the crawler without --json so full output and progress lines are printed in real-time
           node /app/apps/daemon/dist/cli.js user-flow \
             --url "${{ inputs.url }}" \
@@ -96,6 +105,7 @@ jobs:
             --max-steps "${{ inputs.max_steps }}" \
             --model "${{ inputs.model }}" \
             --viewport "${{ inputs.viewport }}" \
+            $EXTRA_FLAGS \
             --project "$PROJECT_ID" 2>&1 | tee run.log
 
       - name: Extract Artifacts Path

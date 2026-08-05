@@ -1,0 +1,15 @@
+{
+  "start_url": "https://www.flipkart.com/",
+  "goal": "buy one plus phone",
+  "crawled_urls": [
+    "https://www.flipkart.com/",
+    "https://www.flipkart.com/search?q=One%20Plus%20Phone&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=off&as=off",
+    "https://www.flipkart.com/oneplus-n6-5g-midnight-green-128-gb/p/itm73a3c7e824695?pid=MOBHZVFJR8TPUG2P&lid=LSTMOBHZVFJR8TPUG2PL0KLD6&marketplace=FLIPKART&q=One+Plus+Phone&store=tyy%2F4io&srno=s_1_1&otracker=search&otracker1=search&fm=organic&iid=aaaa67a9-481b-4bb9-bcb2-37881423865f.MOBHZVFJR8TPUG2P.SEARCH&ppt=hp&ppn=homepage&ssid=2goxjqcjkw0000001785737153433&qH=485158050c6fd007&ov_redirect=true",
+    "https://www.flipkart.com/oneplus-n6-5g-midnight-green-128-gb/product-reviews/itm73a3c7e824695?pid=MOBHZVFJR8TPUG2P&lid=LSTMOBHZVFJR8TPUG2PL0KLD6&aid=dc0f2b2d-7619-44cc-b5fc-2fe3e4d453a7&mid=FLIPKART&an=Camera&cat=Mobile&vert=Handset",
+    "https://www.flipkart.com/",
+    "https://www.flipkart.com/flights-travel-uhp-at-store?pageUID=1785737163604",
+    "https://www.flipkart.com/travel/bookings?pageUID=1785737167860"
+  ],
+  "auth_gated_urls": [],
+  "graph": {}
+}

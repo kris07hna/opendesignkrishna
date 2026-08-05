@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--model",        default=DEFAULT_MODEL,           help=f"OpenCode model (default: {DEFAULT_MODEL})")
     parser.add_argument("--full-page",    action="store_true", default=True, help="Capture full scrolled-page height (default: True)")
     parser.add_argument("--no-full-page", dest="full_page", action="store_false", help="Capture viewport height only")
+    parser.add_argument("--no-screenshots", action="store_true",          help="JSON-only extraction mode: skip capturing screenshots")
     parser.add_argument("--desktop-only", action="store_true",             help="Desktop viewport only")
     parser.add_argument("--mobile-only",  action="store_true",             help="Mobile viewport only")
     parser.add_argument("--no-ai",        action="store_true",             help="Disable AI reasoning, use heuristic nav only")
@@ -29,30 +30,33 @@ def main():
 
     if args.mode == "flow":
         asyncio.run(run_crawler(
-            start_url    = args.url,
-            goal         = args.goal,
-            output_dir   = args.output_dir,
-            model        = args.model,
-            full_page    = args.full_page,
-            desktop_only = args.desktop_only,
-            mobile_only  = args.mobile_only,
+            start_url      = args.url,
+            goal           = args.goal,
+            output_dir     = args.output_dir,
+            model          = args.model,
+            full_page      = args.full_page,
+            desktop_only   = args.desktop_only,
+            mobile_only    = args.mobile_only,
+            no_screenshots = args.no_screenshots,
         ))
     elif args.mode == "spider":
         asyncio.run(run_spider(
-            start_url    = args.url,
-            output_dir   = args.output_dir,
-            full_page    = args.full_page,
-            desktop_only = args.desktop_only,
-            mobile_only  = args.mobile_only,
-            max_pages    = args.max_steps
+            start_url      = args.url,
+            output_dir     = args.output_dir,
+            full_page      = args.full_page,
+            desktop_only   = args.desktop_only,
+            mobile_only    = args.mobile_only,
+            max_pages      = args.max_steps,
+            no_screenshots = args.no_screenshots,
         ))
     elif args.mode == "ux-ia":
         asyncio.run(run_ux_ia(
-            start_url    = args.url,
-            output_dir   = args.output_dir,
-            model        = args.model,
-            max_pages    = args.max_steps,
-            no_llm_plan  = args.no_ai_plan
+            start_url      = args.url,
+            output_dir     = args.output_dir,
+            model          = args.model,
+            max_pages      = args.max_steps,
+            no_llm_plan    = args.no_ai_plan,
+            no_screenshots = args.no_screenshots,
         ))
 
 if __name__ == "__main__":
