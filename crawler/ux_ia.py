@@ -13,7 +13,7 @@ import re
 from urllib.parse import urljoin, urlparse
 from playwright.async_api import async_playwright
 from crawler.config import log, MAX_STEPS, VERSION, DEFAULT_MODEL
-from crawler.engine import make_context, settle_page
+from crawler.engine import make_context, settle_page, check_and_handle_auth_gate
 from crawler.extractor import extract_information_architecture
 from crawler.agent import ask_opencode
 from crawler.hybrid_extractor import build_hybrid_plan
