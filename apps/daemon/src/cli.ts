@@ -297,10 +297,10 @@ const BRAND_BOOLEAN_FLAGS = new Set([
   'help', 'h', 'json',
 ]);
 const USER_FLOW_STRING_FLAGS = new Set([
-  'daemon-url', 'url', 'goal', 'max-depth', 'project',
+  'daemon-url', 'url', 'goal', 'max-depth', 'max-steps', 'project', 'mode', 'model', 'viewport',
 ]);
 const USER_FLOW_BOOLEAN_FLAGS = new Set([
-  'help', 'h', 'json',
+  'help', 'h', 'json', 'full-page', 'no-ai', 'desktop-only', 'mobile-only',
 ]);
 // Hoisted because `runAutomation` is reachable through the top-of-file
 // SUBCOMMAND_MAP dispatch, which runs during module evaluation —

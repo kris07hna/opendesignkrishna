@@ -53,6 +53,14 @@ function resolvePythonBin(workspaceRoot: string): string {
  * until the subprocess exits, then sends a final `done` event with the
  * output file paths or an `error` event on failure.
  */
+interface CrawlOptions {
+  mode?: string | undefined;
+  viewport?: string | undefined;
+  fullPage?: boolean | undefined;
+  model?: string | undefined;
+  noAi?: boolean | undefined;
+}
+
 function handleStreamCrawl(
   req: Request,
   res: Response,
@@ -64,7 +72,7 @@ function handleStreamCrawl(
   pythonBin: string,
   crawlerScript: string,
   workspaceRoot: string,
-  model?: string,
+  opts: CrawlOptions = {},
 ): void {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -85,13 +93,27 @@ function handleStreamCrawl(
     '--output-dir', outputDir,
   ];
 
-  if (model && model.trim()) {
-    args.push('--model', model.trim());
+  if (opts.mode && opts.mode.trim()) {
+    args.push('--mode', opts.mode.trim());
+  }
+  if (opts.model && opts.model.trim()) {
+    args.push('--model', opts.model.trim());
+  }
+  if (opts.viewport === 'desktop-only') {
+    args.push('--desktop-only');
+  } else if (opts.viewport === 'mobile-only') {
+    args.push('--mobile-only');
+  }
+  if (opts.fullPage) {
+    args.push('--full-page');
+  }
+  if (opts.noAi) {
+    args.push('--no-ai');
   }
 
   sendEvent('start', {
-    message: `Starting crawl of ${url} (depth ${maxDepth})`,
-    url, goal, maxDepth,
+    message: `Starting crawl of ${url} (mode: ${opts.mode || 'flow'}, depth: ${maxDepth})`,
+    url, goal, maxDepth, mode: opts.mode,
   });
 
   // crawlDone is set to true before res.end() so the res.on('close')
@@ -260,11 +282,22 @@ export function registerUserFlowRoutes(
         return sendApiError(res, 404, 'PROJECT_NOT_FOUND', 'Project not found');
       }
 
-      const body = (req.body ?? {}) as Partial<UserFlowCrawlRequest>;
+      type ExtendedUserFlowCrawlRequest = UserFlowCrawlRequest & {
+        mode?: string;
+        viewport?: string;
+        fullPage?: boolean;
+        maxSteps?: number;
+        noAi?: boolean;
+      };
+      const body = (req.body ?? {}) as Partial<ExtendedUserFlowCrawlRequest>;
       const rawUrl = body.url;
       const rawGoal = body.goal;
-      const maxDepth = body.maxDepth ?? 1;
+      const maxDepth = body.maxSteps ?? body.maxDepth ?? 1;
+      const mode = body.mode;
       const model = body.model;
+      const viewport = body.viewport;
+      const fullPage = body.fullPage;
+      const noAi = body.noAi;
 
       if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.trim()) {
         return sendApiError(res, 400, 'BAD_REQUEST', 'url is required');
@@ -293,7 +326,7 @@ export function registerUserFlowRoutes(
         req, res,
         projectId, targetUrl, goal, maxDepth,
         outputDir, pythonBin, crawlerScript, workspaceRoot,
-        model,
+        { mode, model, viewport, fullPage, noAi },
       );
     } catch (caught) {
       if (!res.headersSent) {
