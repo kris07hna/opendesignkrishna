@@ -63,6 +63,7 @@ async def make_context(pw, viewport_name: str) -> BrowserContext:
             "--disable-background-networking",
             "--disable-background-timer-throttling",
             "--font-render-hinting=none",
+            "--disable-http2",
         ]
     )
     ctx_args = dict(
@@ -82,6 +83,152 @@ async def make_context(pw, viewport_name: str) -> BrowserContext:
     context = await browser.new_context(**ctx_args)
     await context.add_init_script(STEALTH_INIT_SCRIPT)
     return browser, context
+
+def extract_dynamic_categories_from_site(site_graph: dict) -> dict:
+    categories = {}
+    for url, page_data in site_graph.items():
+        ia = page_data.get("ia", {}) if isinstance(page_data, dict) else {}
+        nav_items = ia.get("navigation", [])
+        for item in nav_items:
+            if isinstance(item, dict) and item.get("name"):
+                name = item.get("name").strip()
+                href = item.get("href", "")
+                if not name or len(name) > 45:
+                    continue
+
+                parsed_path = [p for p in urlparse(href).path.strip("/").split("/") if p]
+                if parsed_path:
+                    cat_name = parsed_path[0].replace("-", " ").replace("_", " ").title()
+                    if len(cat_name) <= 22 and not cat_name.isdigit():
+                        if cat_name not in categories:
+                            categories[cat_name] = []
+                        if name not in categories[cat_name]:
+                            categories[cat_name].append(name)
+                        continue
+
+                if "Main Navigation" not in categories:
+                    categories["Main Navigation"] = []
+                if name not in categories["Main Navigation"]:
+                    categories["Main Navigation"].append(name)
+
+    return categories
+
+def generate_figma_artifacts(output_dir: str, site_graph: dict):
+    """
+    Generates Figma-compatible JSON (sitemap_figma.json), figma_import_bundle.json,
+    and drag-and-drop vector SVG (sitemap_visual.svg) 100% dynamically for any website.
+    Shared across ALL crawler modes (ux-ia, spider, runner).
+    """
+    try:
+        categories = extract_dynamic_categories_from_site(site_graph)
+        figma_nodes = []
+
+        for url, page_data in site_graph.items():
+            if not isinstance(page_data, dict):
+                continue
+            ia = page_data.get("ia", {})
+            title = ia.get("page_title") or page_data.get("title") or url
+            nav_items = ia.get("navigation", [])
+
+            children = []
+            for item in nav_items:
+                if isinstance(item, dict) and item.get("name"):
+                    name = item.get("name").strip()
+                    href = item.get("href", "")
+                    children.append({"name": name, "href": href, "type": "LINK"})
+
+            figma_nodes.append({
+                "id": url,
+                "title": title,
+                "url": url,
+                "type": "FRAME",
+                "children": children
+            })
+
+        # Save Figma-compatible JSON artifact (sitemap_figma.json)
+        figma_data = {
+            "version": "1.0",
+            "generator": "OpenDesign Web Flow Mapper",
+            "total_nodes": len(figma_nodes),
+            "nodes": figma_nodes
+        }
+        figma_path = os.path.join(output_dir, "sitemap_figma.json")
+        with open(figma_path, "w", encoding="utf-8") as f:
+            json.dump(figma_data, f, indent=2)
+        log(f"Figma JSON artifact saved to {figma_path}", "INFO")
+
+        # Save figma_import_bundle.json dynamically for any website
+        nav_tree = {}
+        for url, page_data in site_graph.items():
+            if not isinstance(page_data, dict):
+                continue
+            vh = page_data.get("visual_hierarchy", {})
+            header_drops = vh.get("Header", {}).get("Dropdowns", {})
+            if isinstance(header_drops, dict):
+                for drop_name, col_map in header_drops.items():
+                    if drop_name not in nav_tree:
+                        nav_tree[drop_name] = {}
+                    if isinstance(col_map, dict):
+                        for col_name, items in col_map.items():
+                            if isinstance(items, list):
+                                item_names = [it.get("text") for it in items if isinstance(it, dict) and it.get("text")]
+                                if item_names:
+                                    nav_tree[drop_name][col_name] = item_names
+
+        if not nav_tree and categories:
+            nav_tree = {cat: {"Links": items} for cat, items in categories.items() if items}
+
+        bundle_data = {
+            "version": "3.0",
+            "generator": "OpenDesign Web Flow Mapper",
+            "navigation_tree": nav_tree
+        }
+        bundle_path = os.path.join(output_dir, "figma_import_bundle.json")
+        with open(bundle_path, "w", encoding="utf-8") as f:
+            json.dump(bundle_data, f, indent=2)
+        log(f"Dynamic Figma Import Bundle saved to {bundle_path}", "INFO")
+
+        # Save SVG vector sitemap (sitemap_visual.svg) for direct drag-and-drop into Figma
+        cat_keys = list(categories.keys()) or ["Main Nav"]
+        box_w, box_h, gap_x, padding = 180, 40, 40, 60
+        num_cats = len(cat_keys)
+        svg_w = max(1200, num_cats * (box_w + gap_x) + padding * 2)
+        max_items = max((len(items) for items in categories.values()), default=1)
+        svg_h = 240 + max_items * (box_h + 14)
+
+        root_x = svg_w / 2 - box_w / 2
+        root_y = padding
+
+        svg_lines = [
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {svg_w} {svg_h}" width="{svg_w}" height="{svg_h}" style="background-color: #0f172a; font-family: sans-serif;">',
+            f'<rect width="100%" height="100%" fill="#0f172a"/>',
+            f'<g transform="translate({root_x}, {root_y})">',
+            f'  <rect width="{box_w}" height="48" rx="8" fill="#6366f1" stroke="#818cf8" stroke-width="2"/>',
+            f'  <text x="{box_w/2}" y="28" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">Sitemap Topology</text>',
+            f'</g>'
+        ]
+
+        start_x = (svg_w - (num_cats * box_w + (num_cats - 1) * gap_x)) / 2
+        for i, cat_name in enumerate(cat_keys):
+            cat_x = start_x + i * (box_w + gap_x)
+            cat_y = root_y + 110
+            svg_lines.append(f'<path d="M {root_x + box_w/2} {root_y + 48} C {root_x + box_w/2} {root_y + 80}, {cat_x + box_w/2} {cat_y - 30}, {cat_x + box_w/2} {cat_y}" fill="none" stroke="#475569" stroke-width="2"/>')
+            svg_lines.append(f'<g transform="translate({cat_x}, {cat_y})"><rect width="{box_w}" height="{box_h}" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/><text x="{box_w/2}" y="25" fill="#f8fafc" font-size="13" font-weight="bold" text-anchor="middle">{cat_name}</text></g>')
+
+            sub_list = categories.get(cat_name, [])
+            for j, item_name in enumerate(sub_list):
+                item_y = cat_y + 60 + j * (box_h + 12)
+                svg_lines.append(f'<path d="M {cat_x + box_w/2} {cat_y + box_h} L {cat_x + box_w/2} {item_y}" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,4"/>')
+                svg_lines.append(f'<g transform="translate({cat_x}, {item_y})"><rect width="{box_w}" height="34" rx="5" fill="#0f172a" stroke="#334155" stroke-width="1.5"/><text x="{box_w/2}" y="21" fill="#94a3b8" font-size="11" font-weight="500" text-anchor="middle">{item_name[:25]}</text></g>')
+
+        svg_lines.append('</svg>')
+        svg_path = os.path.join(output_dir, "sitemap_visual.svg")
+        with open(svg_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(svg_lines))
+        log(f"Visual SVG sitemap saved to {svg_path}", "INFO")
+
+    except Exception as e:
+        log(f"Failed to generate Figma artifacts ({e})", "WARN")
 
 _OVERLAY_JS = """
 () => {

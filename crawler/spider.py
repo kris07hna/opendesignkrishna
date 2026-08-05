@@ -5,7 +5,7 @@ from urllib.parse import urljoin, urlparse
 from datetime import datetime, timezone
 from playwright.async_api import async_playwright
 from crawler.config import log, MAX_STEPS, VERSION
-from crawler.engine import make_context, take_screenshot, settle_page, check_and_handle_auth_gate
+from crawler.engine import make_context, take_screenshot, settle_page, check_and_handle_auth_gate, generate_figma_artifacts
 from crawler.extractor import extract_information_architecture
 
 def get_same_domain_links(base_url, hrefs):
@@ -137,3 +137,7 @@ async def run_spider(start_url: str, output_dir: str, full_page: bool = True, de
         }
         json.dump(sitemap, f, indent=2)
         log(f"Sitemap exported to {sitemap_path}", "INFO")
+
+        # Generate Figma-compatible artifacts for spider mode as well
+        site_graph = {s["url"]: s for s in flow_steps if isinstance(s, dict) and s.get("url")}
+        generate_figma_artifacts(output_dir, site_graph)
