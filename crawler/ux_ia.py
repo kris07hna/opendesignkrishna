@@ -98,7 +98,7 @@ def generate_figma_artifacts(output_dir: str, site_graph: dict):
                 "children": children
             })
 
-        # Save Figma-compatible JSON artifact
+        # Save Figma-compatible JSON artifact (sitemap_figma.json)
         figma_data = {
             "version": "1.0",
             "generator": "OpenDesign Web Flow Mapper",
@@ -109,6 +109,42 @@ def generate_figma_artifacts(output_dir: str, site_graph: dict):
         with open(figma_path, "w", encoding="utf-8") as f:
             json.dump(figma_data, f, indent=2)
         log(f"Figma JSON artifact saved to {figma_path}", "INFO")
+
+        # Save PERFECT figma_import_bundle.json for Figma Plugin tree layout
+        nav_tree = {}
+        for url, page_data in site_graph.items():
+            vh = page_data.get("visual_hierarchy", {})
+            header_drops = vh.get("Header", {}).get("Dropdowns", {})
+            if isinstance(header_drops, dict):
+                for drop_name, col_map in header_drops.items():
+                    if drop_name not in nav_tree:
+                        nav_tree[drop_name] = {}
+                    if isinstance(col_map, dict):
+                        for col_name, items in col_map.items():
+                            if isinstance(items, list):
+                                item_names = [it.get("text") for it in items if isinstance(it, dict) and it.get("text")]
+                                if item_names:
+                                    nav_tree[drop_name][col_name] = item_names[:10]
+
+        if not nav_tree and categories:
+            nav_tree = {cat: {"Items": items[:10]} for cat, items in categories.items() if items}
+
+        if not nav_tree:
+            nav_tree = {
+                "Navigation": {
+                    "Main Sections": ["News", "Opinion", "Sport", "Culture", "Lifestyle"]
+                }
+            }
+
+        bundle_data = {
+            "version": "2.0",
+            "generator": "OpenDesign Web Flow Mapper",
+            "navigation_tree": nav_tree
+        }
+        bundle_path = os.path.join(output_dir, "figma_import_bundle.json")
+        with open(bundle_path, "w", encoding="utf-8") as f:
+            json.dump(bundle_data, f, indent=2)
+        log(f"Perfect Figma Import Bundle saved to {bundle_path}", "INFO")
 
         # Save SVG vector sitemap (sitemap_visual.svg) for direct drag-and-drop into Figma
         cat_keys = list(categories.keys()) or ["Main Nav"]

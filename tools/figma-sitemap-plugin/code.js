@@ -40,6 +40,13 @@ figma.ui.onmessage = async (msg) => {
 };
 
 function extractHierarchy(data) {
+  if (!data) return {};
+
+  // Priority 1: figma_import_bundle.json
+  if (data.navigation_tree && typeof data.navigation_tree === 'object') {
+    return data.navigation_tree;
+  }
+
   const result = {};
 
   // Case A: raw_ia_graph.json
