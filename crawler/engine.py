@@ -159,6 +159,59 @@ async def dismiss_all_overlays(page: Page) -> int:
     except Exception:
         return 0
 
+async def check_and_handle_auth_gate(page: Page, output_dir: str, viewport: str, step: int) -> bool:
+    """
+    Detects if the current page or active modal is an Auth/Login/Signup Gate.
+    If detected:
+      1. Takes a screenshot of the popup/gate for documentation
+      2. Logs the gate detection
+      3. Automatically returns back (page.go_back) or dismisses modal so crawling continues.
+    """
+    try:
+        url = page.url.lower()
+        title = (await page.title()).lower()
+
+        auth_keywords = ["login", "sign-in", "signin", "signup", "register", "auth/", "account/login"]
+        is_auth_url = any(kw in url or kw in title for kw in auth_keywords)
+
+        is_auth_modal = await page.evaluate("""() => {
+            const authSel = '[class*="login" i], [class*="signup" i], [class*="auth" i], [id*="login" i], [id*="signup" i], form[action*="login" i], form[action*="signup" i]';
+            const modals = document.querySelectorAll('dialog, [role="dialog"], .modal, .popup');
+            for (const m of modals) {
+                if (m.querySelector(authSel) || m.innerText.toLowerCase().includes('sign in') || m.innerText.toLowerCase().includes('log in')) {
+                    const style = window.getComputedStyle(m);
+                    if (style.display !== 'none' && style.visibility !== 'hidden') {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }""")
+
+        if is_auth_url or is_auth_modal:
+            log(f"Detected Auth/Login/Signup Gate at {url}", "WARN")
+            try:
+                shot_path = resolve_screenshot_path(output_dir, url, viewport, step, "auth_gate")
+                await page.screenshot(path=shot_path, full_page=False, type="png")
+                log(f"Saved auth gate screenshot: {os.path.basename(shot_path)}", "SNAP")
+            except Exception:
+                pass
+
+            if is_auth_url:
+                log("Navigating back from login page to continue crawl...", "INFO")
+                try:
+                    await page.go_back(wait_until="domcontentloaded", timeout=5000)
+                except Exception:
+                    pass
+            else:
+                await dismiss_all_overlays(page)
+
+            return True
+
+        return False
+    except Exception:
+        return False
+
 async def expand_all_dropdowns(page: Page):
     """
     Finds and interacts with all header/footer dropdown triggers and submenus

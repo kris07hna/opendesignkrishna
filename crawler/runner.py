@@ -3,7 +3,7 @@ import os
 from datetime import datetime, timezone
 from playwright.async_api import async_playwright
 from crawler.config import log, MAX_STEPS, DEFAULT_MODEL, VERSION
-from crawler.engine import make_context, take_screenshot, settle_page, resolve_screenshot_path
+from crawler.engine import make_context, take_screenshot, settle_page, resolve_screenshot_path, check_and_handle_auth_gate
 from crawler.agent import synthesize_complex_goal
 from crawler.extractor import extract_information_architecture
 import json
@@ -44,6 +44,13 @@ async def run_crawler(start_url: str, goal: str, output_dir: str, model: str = D
             
             for step in range(1, MAX_STEPS + 1):
                 log(f"Step {step}/{MAX_STEPS}", "INFO")
+
+                # Check and bypass any login/signup gate or popup modal
+                is_gate = await check_and_handle_auth_gate(page, output_dir, vp_name, step)
+                if is_gate:
+                    log("Bypassed gate, resuming crawl flow...", "INFO")
+                    await settle_page(page)
+
                 current_url = page.url
                 page_title = await page.title()
                 

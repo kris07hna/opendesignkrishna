@@ -58,7 +58,7 @@ def is_valid_link(start_url, full_url):
 
 
 async def worker(worker_id: int, queue: asyncio.Queue, visited: set, site_graph: dict,
-                 context, start_url: str, max_pages: int, extractor_js: str, plan_meta: dict):
+                 context, start_url: str, max_pages: int, extractor_js: str, plan_meta: dict, output_dir: str):
     """Parallel crawl worker — uses the pre-built plan-driven extractor_js on every page."""
     page = await context.new_page()
 
@@ -80,6 +80,9 @@ async def worker(worker_id: int, queue: asyncio.Queue, visited: set, site_graph:
 
         try:
             await page.goto(current_url, wait_until="domcontentloaded", timeout=30000)
+
+            # Check and handle login gate or popup modal
+            await check_and_handle_auth_gate(page, output_dir, "desktop", len(visited))
 
             # ── Step 1: Base extraction (extracts Buttons, Body, Footer columns) ────
             ia_data = await extract_information_architecture(page)
@@ -283,7 +286,7 @@ async def run_ux_ia(start_url: str, output_dir: str, model: str = DEFAULT_MODEL,
 
         workers = [
             asyncio.create_task(
-                worker(i, queue, visited, site_graph, context, start_url, max_pages, extractor_js, plan_meta)
+                worker(i, queue, visited, site_graph, context, start_url, max_pages, extractor_js, plan_meta, site_dir)
             )
             for i in range(CONCURRENCY)
         ]

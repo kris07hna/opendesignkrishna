@@ -5,7 +5,7 @@ from urllib.parse import urljoin, urlparse
 from datetime import datetime, timezone
 from playwright.async_api import async_playwright
 from crawler.config import log, MAX_STEPS, VERSION
-from crawler.engine import make_context, take_screenshot, settle_page
+from crawler.engine import make_context, take_screenshot, settle_page, check_and_handle_auth_gate
 from crawler.extractor import extract_information_architecture
 
 def get_same_domain_links(base_url, hrefs):
@@ -66,6 +66,12 @@ async def run_spider(start_url: str, output_dir: str, full_page: bool = True, de
                     log(f"Navigation timeout/error (ignoring): {e}", "WARN")
                     
                 await settle_page(page)
+
+                # Check and bypass any login/signup gate or popup modal
+                is_gate = await check_and_handle_auth_gate(page, output_dir, vp_name, step)
+                if is_gate:
+                    log("Bypassed gate in spider mode, continuing...", "INFO")
+                    await settle_page(page)
                 
                 # 1. Take Screenshot
                 shot_name = f"{vp_name}_page_{step:02d}.png"
