@@ -124,10 +124,10 @@ def generate_figma_artifacts(output_dir: str, site_graph: dict):
                             if isinstance(items, list):
                                 item_names = [it.get("text") for it in items if isinstance(it, dict) and it.get("text")]
                                 if item_names:
-                                    nav_tree[drop_name][col_name] = item_names[:10]
+                                    nav_tree[drop_name][col_name] = item_names
 
         if not nav_tree and categories:
-            nav_tree = {cat: {"Items": items[:10]} for cat, items in categories.items() if items}
+            nav_tree = {cat: {"Items": items} for cat, items in categories.items() if items}
 
         if not nav_tree:
             nav_tree = {
@@ -230,14 +230,6 @@ async def worker(worker_id: int, queue: asyncio.Queue, visited: set, site_graph:
                 item_sel  = selectors.get("column_item_selector")
 
                 for trigger in plan_meta.get("nav_items", []):
-                    # Direct links do not have dropdowns
-                    is_simple = trigger.lower().strip() in [
-                        'pricing', 'blog', 'careers', 'about', 'contact', 'login',
-                        'sign in', 'sign up', 'get started', 'start now', 'try free',
-                        'docs', 'status', 'contact sales', 'sign in sign in'
-                    ]
-                    if is_simple:
-                        continue
                     try:
                         # Find trigger in header
                         loc = page.locator("header nav, [role='navigation'], header").get_by_text(trigger, exact=False).first
@@ -465,7 +457,7 @@ async def run_ux_ia(start_url: str, output_dir: str, model: str = DEFAULT_MODEL,
                         if isinstance(items, list):
                             item_names = [it.get("text") for it in items if isinstance(it, dict) and it.get("text")]
                             if item_names:
-                                dropdown_summary[drop_name][col_name] = item_names[:10]
+                                dropdown_summary[drop_name][col_name] = item_names
 
         footer_cols = vh.get("Footer", {}).get("Columns", {})
         if isinstance(footer_cols, dict):
@@ -473,7 +465,7 @@ async def run_ux_ia(start_url: str, output_dir: str, model: str = DEFAULT_MODEL,
                 if col_name not in footer_summary and isinstance(items, list):
                     item_names = [it.get("text") for it in items if isinstance(it, dict) and it.get("text")]
                     if item_names:
-                        footer_summary[col_name] = item_names[:10]
+                        footer_summary[col_name] = item_names
 
     summary = {
         "total_pages": len(site_graph),
@@ -487,6 +479,7 @@ async def run_ux_ia(start_url: str, output_dir: str, model: str = DEFAULT_MODEL,
 CRITICAL INSTRUCTION:
 - Focus STRICTLY on the extracted Header Dropdown categories and item link titles.
 - DO NOT include body section headings, body paragraphs, marketing text, or page copy.
+- In your Mermaid diagram, ALWAYS enclose ALL node labels in double quotes (e.g. N1["News & Media"] or N2["Payments (Online)"]) to prevent syntax errors.
 - Your breakdown MUST detail each Header Dropdown -> Category Heading -> Dropdown Link Titles.
 
 Extracted Navigation Structure:
@@ -494,7 +487,7 @@ Extracted Navigation Structure:
 
 Synthesize this into a clean, professional UX IA overview in Markdown format:
 1. Executive UX Overview (2-3 paragraphs analyzing the site's top-level navigation, categorization quality, and information density).
-2. Mermaid Diagram: A `flowchart TD` illustrating Header Dropdowns -> Category Headings -> Sub-Item Titles.
+2. Mermaid Diagram: A valid `flowchart TD` with double-quoted labels for Header Dropdowns -> Category Headings -> Sub-Item Titles.
 3. Section Map: Bullet-list breakdown detailing every Header Dropdown -> Sub-Category Heading -> Dropdown Item Link Titles.
 4. UX Recommendations: 3 targeted recommendations to optimize navigation clarity, discoverability, and structure.
 """
