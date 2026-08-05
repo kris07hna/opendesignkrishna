@@ -512,3 +512,48 @@ Synthesize this into a clean, professional UX IA overview in Markdown format:
         f.write(ai_response)
 
     log(f"UX Overview generated at {md_path}", "INFO")
+
+    # 3. AI-Driven Figma Tree Bundle Synthesis — Uses LLM to organize raw links into clean 3-level tree
+    log(f"Phase 3B: Using AI Strategist to synthesize 3-level navigation_tree for Figma...", "AI")
+    tree_prompt = f"""You are a Senior UX Architect structuring a website's Navigation Information Architecture into a clean 3-level tree JSON format for a Figma Plugin.
+
+INPUT DATA:
+{json.dumps(summary, indent=2)}
+
+TASK:
+Organize all navigation links into a clean, professional 3-level JSON hierarchy:
+Level 1: Primary Header Dropdowns (e.g. Products, Solutions, Developers, Resources, News, Opinion, Sport, Culture, Lifestyle, Company)
+Level 2: Sub-Category Headings (e.g. Payments, Billing, World News, US Politics, Football, Film, etc.)
+Level 3: Array of clean string item link titles.
+
+OUTPUT INSTRUCTION:
+- Return ONLY a valid JSON object wrapped in ```json ``` markdown code block.
+- Schema MUST be:
+```json
+{{
+  "navigation_tree": {{
+    "Section 1": {{
+      "Category A": ["Link Title 1", "Link Title 2"],
+      "Category B": ["Link Title 3", "Link Title 4"]
+    }},
+    "Section 2": {{
+      "Category C": ["Link Title 5", "Link Title 6"]
+    }}
+  }}
+}}
+```
+"""
+    try:
+        json_ai_res = await ask_opencode(tree_prompt, model=model)
+        json_match = re.search(r'```json\s*(\{.*?\})\s*```', json_ai_res, re.DOTALL)
+        if json_match:
+            ai_bundle = json.loads(json_match.group(1))
+            if "navigation_tree" in ai_bundle and len(ai_bundle["navigation_tree"]) > 0:
+                bundle_path = os.path.join(output_dir, "figma_import_bundle.json")
+                ai_bundle["version"] = "2.0"
+                ai_bundle["generator"] = "OpenDesign AI IA Synthesizer"
+                with open(bundle_path, "w", encoding="utf-8") as f:
+                    json.dump(ai_bundle, f, indent=2)
+                log(f"AI-Synthesized Figma Import Bundle saved to {bundle_path}", "INFO")
+    except Exception as e:
+        log(f"AI Figma bundle synthesis fallback ({e})", "WARN")
